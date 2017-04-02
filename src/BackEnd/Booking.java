@@ -17,7 +17,7 @@ public class Booking {
 		 * @param passanger
 		 * @return
 		 */
-		public synchronized Ticket book(Flight flight, Passenger passanger){
+		public synchronized Ticket book(Flight flight, String fistName, String lastName){
 			return null;
 		}
 }

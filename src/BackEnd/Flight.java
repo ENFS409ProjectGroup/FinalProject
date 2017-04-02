@@ -13,6 +13,7 @@ public class Flight {
 		
 	private LinkedList<Ticket> tickets;
 	private int flightNumber;
+	private int totalSeats;
 	private int seatsAvailable;
 	private String source;
 	private String destination;

@@ -21,28 +21,28 @@ public class Driver {
 	private static final String FLIGHTS_TABLE_NAME = "flights";
 	private static final String FLIGHTS_COLUMN_FLIGHTNUMBER = "flightNumber";
 	private static final String FLIGHTS_COLUMN_DESTINATION = "destination";
+	private static final String FLIGHTS_COLUMN_SOURCE = "source";
 	private static final String FLIGHTS_COLUMN_DEPARTURETIME = "departureTime";
 	private static final String FLIGHTS_COLUMN_DURATION = "duration";
+	private static final String FLIGHTS_COLUMN_TOTALSEATS = "totalSeats";
 	private static final String FLIGHTS_COLUMN_SEATSAVAILABLE = "seatsAvailable";
 	private static final String FLIGHTS_COLUMN_PRICE = "price";
 	private static final String FLIGHTS_COLUMN_DATE = "date";
 	
 		
 	private static final String TICKETS_TABLE_NAME = "tickets";
+	private static final String TICKETS_COLUMN_REFNUM = "refNum";
 	private static final String TICKETS_COLUMN_FLIGHTNUMBER = "flightNumber";
 	private static final String TICKETS_COLUMN_SEATNUMBER = "seatNumber";
 	private static final String TICKETS_COLUMN_LASTNAME = "lastName";
 	private static final String TICKETS_COLUMN_FIRSTNAME = "firstName";
 	private static final String TICKETS_COLUMN_DESTINATION = "destination";
+	private static final String TICKETS_COLUMN_SOURCE = "source";
 	private static final String TICKETS_COLUMN_DEPARTURETIME = "depatureTime";
 	private static final String TICKETS_COLUMN_DURATION = "duration";
 	private static final String TICKETS_COLUMN_DATE = "date";
 	private static final String TICKETS_COLUMN_AVALIABLE = "avaliable";
 	
-	
-	  private static final String EMPLOYEE_TABLE = "create table MyEmployees3 ( "
-		      + "   id INT PRIMARY KEY, firstName VARCHAR(20), lastName VARCHAR(20), "
-		      + "   title VARCHAR(20), salary INT )";
 	
 	public Driver(){
 		try{
@@ -98,18 +98,22 @@ public class Driver {
 		String query1 = new String("CREATE TABLE IF NOT EXISTS " + FLIGHTS_TABLE_NAME + " (" +
 				FLIGHTS_COLUMN_FLIGHTNUMBER + " INTEGER PRIMARY KEY, " +
 				FLIGHTS_COLUMN_DESTINATION + " TEXT, " +
+				FLIGHTS_COLUMN_SOURCE + " TEXT, " +
 				FLIGHTS_COLUMN_DEPARTURETIME + " TEXT, " +
 				FLIGHTS_COLUMN_DURATION + " TEXT, " +
+				FLIGHTS_COLUMN_TOTALSEATS + " TEXT, " +
 				FLIGHTS_COLUMN_SEATSAVAILABLE + " TEXT, " +
 				FLIGHTS_COLUMN_PRICE + " TEXT, " +
 				FLIGHTS_COLUMN_DATE + " TEXT " + ")");
 		
 		String query2 = new String("CREATE TABLE IF NOT EXISTS " + TICKETS_TABLE_NAME + "(" +
-				TICKETS_COLUMN_FLIGHTNUMBER + " INTEGER PRIMARY KEY, " +
+				TICKETS_COLUMN_REFNUM + " INTEGER PRIMARY KEY AUTO_INCREMENT, " +
+				TICKETS_COLUMN_FLIGHTNUMBER + " INTEGER, " +
 				TICKETS_COLUMN_SEATNUMBER + " INTEGER, " +
 				TICKETS_COLUMN_LASTNAME + " TEXT, " + 
 				TICKETS_COLUMN_FIRSTNAME + " TEXT, " + 
 				TICKETS_COLUMN_DESTINATION + " TEXT, " +
+				TICKETS_COLUMN_SOURCE + " TEXT, " +
 				TICKETS_COLUMN_DEPARTURETIME + " TEXT, " +
 				TICKETS_COLUMN_DURATION + " TEXT, " +
 				TICKETS_COLUMN_DATE + " TEXT, " +

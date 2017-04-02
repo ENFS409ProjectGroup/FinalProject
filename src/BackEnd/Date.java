@@ -9,18 +9,26 @@ package BackEnd;
  *
  */
 public class Date {
-		
+		/**
+		 * The day in the following format: 
+		 * 01 for single digits, 19 for double digits
+		 */
 		private String day;
-		private String time;
+		
+		/**
+		 * The month in the following format:
+		 * 01 for single digits, 10 for double digits
+		 */
 		private String month;
+		
+		/**
+		 * The year as a four digit int:
+		 * 2017 or 1995
+		 */
 		private String year;
 		
 		public void setDay(String day){
 			this.day = day;
-		}
-		
-		public void setTime(String time){
-			this.time = time;
 		}
 		
 		public void setMonth(String month){
@@ -35,15 +43,21 @@ public class Date {
 			return this.day;
 		}
 		
-		public String getTime(){
-			return this.time;
-		}
-		
 		public String getMonth(){
 			return this.month;
 		}
 		
 		public String getYear(){
 			return this.year;
+		}
+		
+		/**
+		 * Returns the date as a string in the following format:
+		 * DD/MM/YYYY
+		 * @return
+		 */
+		public String printDate(){
+			String temp = new String(day + "/" + month + "/" + year);
+			return temp;
 		}
 }

@@ -16,6 +16,7 @@ public class Ticket implements Serializable {
 		private String lastName;
 		private String firstName;
 		private String destination;
+		private String source;
 		private String departureTime;
 		private String duration;
 		private int seatNumber;
@@ -42,6 +43,10 @@ public class Ticket implements Serializable {
 		
 		public void setDestination(String destination){
 			this.destination = destination;
+		}
+		
+		public void setSource(String source){
+			this.source = source;
 		}
 		
 		public void setDepatureTime(String departureTime){
@@ -74,6 +79,10 @@ public class Ticket implements Serializable {
 		
 		public String getDestination(){
 			return this.destination;
+		}
+		
+		public String getSource(){
+			return this.source;
 		}
 		
 		public String getDepartureTime(){

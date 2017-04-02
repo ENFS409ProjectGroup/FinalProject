@@ -1,7 +1,9 @@
 package BackEnd;
 
-
-import java.util.concurrent.LinkedBlockingQueue;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.LinkedList;
 
 /**
  * This class deals with the transfer of data between the client, database, and the system.
@@ -12,28 +14,26 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class Server{
 	private Driver driver;
+	private Booking bookFlight;
+	private LinkedList<Flight> flights;
 	
-	private int nThreads;
-	private Manager [] threads;
-	private LinkedBlockingQueue<Task> queue;
+
 
 	
 	public Server(int numThreads){
 		driver = new Driver();
+		driver.initialize();
 		
-		/*this.nThreads = numThreads;
-		queue = new LinkedBlockingQueue<Task>();
-		threads = new Manager[nThreads];
-		
-		for(int i = 0; i < nThreads; i++){
-			threads[i] = new Manager();
-			threads[i].start();
-		}*/
 	}
 	
 	public void run(){
-		driver.initialize();
+		ThreadPool pool = new ThreadPool(6);
 		
+		while(true){
+			
+		
+		
+		}
 	}
 	
 	public void serialize(){
@@ -44,12 +44,44 @@ public class Server{
 		
 	}
 	
-	public LinkedBlockingQueue<Task> getQueue(){
-		return this.queue;
-	}
-	
 	public Driver getDriver(){
 		return this.driver;
+	}
+	
+	public void addFlightList(String inputName){
+		
+		try{
+			FileReader reader = new FileReader(inputName + ".txt");
+			BufferedReader read = new BufferedReader(reader);
+			String current = read.readLine();
+			
+			while(true){
+				if(current == null){
+					break;
+				}
+				
+				String[] values = current.split(";");
+				
+				
+				
+			}
+			
+			
+			
+			
+			
+			
+			read.close();
+			
+		}
+		catch(IOException e){
+			System.err.println("Problem reading from file.");
+			System.err.println(e.getMessage());
+			System.err.println("Program terminating.");
+			System.exit(1);
+		}
+		
+		
 	}
 	
 	public static void main(String []args){

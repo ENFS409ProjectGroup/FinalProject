@@ -9,7 +9,7 @@ import java.util.LinkedList;
  * @author Tevin Schmidt
  *
  */
-public class Manager extends Thread{
+public class Manager {
 		
 		private LinkedList<Flight> flights;
 		private Server theServer;
@@ -22,28 +22,7 @@ public class Manager extends Thread{
 		public void run(){
 			Task toPerform;
 			
-			while(true){
-				synchronized (theServer.getQueue()) {
-					while(theServer.getQueue().isEmpty()){
-						try{
-							theServer.getQueue().wait();
-						}
-						catch(InterruptedException e){
-							System.err.println("An error occurred while queue is waiting.");
-							System.err.println(e.getMessage());
-						}
-						
-					}
-					toPerform = theServer.getQueue().poll();
-				}
-				
-				try{
-					toPerform.run();
-				}
-				catch(RuntimeException e){
-					System.err.println("Thread pool is interrupted due to an issue: " + e.getMessage());
-				}
-			}
+			
 		}
 		
 		public Flight searchDate(Date theDate){
