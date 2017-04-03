@@ -13,6 +13,9 @@ import java.io.Serializable;
  */
 public class Ticket implements Serializable {
 
+
+		private static final long serialVersionUID = 464748L;
+		
 		private String lastName;
 		private String firstName;
 		private String destination;
@@ -30,7 +33,15 @@ public class Ticket implements Serializable {
 		 * @param theFlight is the flight to initializes members with
 		 */
 		public Ticket(int seatNumber, Flight theFlight){
-			
+			this.lastName = null;
+			this.firstName = null;
+			this.destination = theFlight.getDestination();
+			this.source = theFlight.getSource();
+			this.departureTime = theFlight.getDepartureTime();
+			this.duration = theFlight.getDuration();
+			this.seatNumber = seatNumber;
+			this.date = theFlight.getDate();
+			this.available = true;
 		}
 		
 		public void setLastName(String lastName){

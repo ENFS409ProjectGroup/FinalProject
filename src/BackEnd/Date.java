@@ -27,6 +27,13 @@ public class Date {
 		 */
 		private String year;
 		
+		public Date(String day, String month, String year){
+			this.day = day;
+			this.month = month;
+			this.year = year;
+			
+		}
+		
 		public void setDay(String day){
 			this.day = day;
 		}
@@ -59,5 +66,12 @@ public class Date {
 		public String printDate(){
 			String temp = new String(day + "/" + month + "/" + year);
 			return temp;
+		}
+		
+		public void convertFromString(String theDate){
+			String [] temp = theDate.split("/");
+			this.day = temp[0];
+			this.month = temp[1];
+			this.year = temp[2];
 		}
 }

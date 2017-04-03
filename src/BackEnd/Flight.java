@@ -22,13 +22,112 @@ public class Flight {
 	private float price;
 	private Date date;
 	
-	public Flight(){
-		
+	public Flight(String [] methods){
+		if(methods.length == 9){
+			this.flightNumber = Integer.parseInt(methods[0]);
+			this.destination = methods[1];
+			this.source = methods[2];
+			this.departureTime = methods[3];
+			this.duration = methods[4];
+			this.totalSeats = Integer.parseInt(methods[5]);
+			this.seatsAvailable = Integer.parseInt(methods[6]);
+			this.price = Float.parseFloat(methods[7]);
+			this.date = dateFromString(methods[8]);
+			
+			createTickets(totalSeats);
+
+		}
+	}
+	
+	public void setFlightNumber(int flightNumber){
+		this.flightNumber = flightNumber;
+	}
+	
+	public void setTotalSeats(int totalSeats){
+		this.totalSeats = totalSeats;
+	}
+	
+	public void setAvailable(int seatsAvailable){
+		this.seatsAvailable = seatsAvailable;
+	}
+	
+	public void setSource(String source){
+		this.source = source;
+	}
+	
+	public void setDestination(String destination){
+		this.destination = destination;
+	}
+	
+	public void setDepartureTime(String departureTime){
+		this.departureTime = departureTime;
+	}
+	
+	public void setDuration(String duration){
+		this.duration = duration;
+	}
+	
+	public void setPrice(float price){
+		this.price = price;
+	}
+	
+	public void setDate(Date date){
+		this.date = date;
+	}
+	
+	public int getFlightNumber(){
+		return this.flightNumber;
+	}
+	
+	public int getTotalSeats(){
+		return this.totalSeats;
+	}
+	
+	public int getSeatsAvailable(){
+		return this.seatsAvailable;
+	}
+	
+	public String getSource(){
+		return this.source;
+	}
+	
+	public String getDestination(){
+		return this.destination;
+	}
+	
+	public String getDepartureTime(){
+		return this.departureTime;
+	}
+	
+	public String getDuration(){
+		return this.duration;
+	}
+	
+	public float getPrice(){
+		return this.price;
+	}
+	
+	public Date getDate(){
+		return this.date;
+	}
+	
+	public LinkedList<Ticket> getTickets(){
+		return this.tickets;
 	}
 	
 	private void createTickets(int numberOfSeats){
-		
+		tickets = new LinkedList<Ticket>();
+		for(int i = 1; i <= numberOfSeats; i++){
+			tickets.add(new Ticket(i, this));
+		}
 	}
+	
+	private Date dateFromString(String theDate){
+		String [] temp = theDate.split("/");
+		Date newDate = new Date(temp[0], temp[1], temp[2]);
+		return newDate;
+	}
+	
 	
 	public void addPassanger(Passenger newPass){
 		
