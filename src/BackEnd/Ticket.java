@@ -18,13 +18,18 @@ public class Ticket implements Serializable {
 		
 		private String lastName;
 		private String firstName;
+		private String dateOfBirth;
 		private String destination;
 		private String source;
 		private String departureTime;
 		private String duration;
 		private int seatNumber;
-		private Date date;
+		private String date;
 		private boolean available;
+		
+		public Ticket(){
+			
+		}
 		
 		/**
 		 * Constructs a ticket with the given seat number assigned to it. Initializes all
@@ -35,6 +40,7 @@ public class Ticket implements Serializable {
 		public Ticket(int seatNumber, Flight theFlight){
 			this.lastName = null;
 			this.firstName = null;
+			this.dateOfBirth = null;
 			this.destination = theFlight.getDestination();
 			this.source = theFlight.getSource();
 			this.departureTime = theFlight.getDepartureTime();
@@ -45,11 +51,30 @@ public class Ticket implements Serializable {
 		}
 		
 		public void setLastName(String lastName){
-			this.lastName = lastName;
+			if(lastName == null){
+				this.lastName = null;
+			}
+			else{
+				this.lastName = lastName;
+			}
 		}
 		
 		public void setFirstName(String firstName){
-			this.firstName = firstName;
+			if(firstName == null){
+				this.firstName = null;
+			}
+			else{
+				this.firstName = firstName;
+			}
+		}
+		
+		public void setDateOfBirth(String date){
+			if(date == null){
+				this.dateOfBirth = null;
+			}
+			else{
+				this.dateOfBirth = date;
+			}
 		}
 		
 		public void setDestination(String destination){
@@ -72,7 +97,7 @@ public class Ticket implements Serializable {
 			this.seatNumber = seatNumber;
 		}
 		
-		public void setDate(Date date){
+		public void setDate(String date){
 			this.date = date;
 		}
 		
@@ -86,6 +111,10 @@ public class Ticket implements Serializable {
 		
 		public String getFirstName(){
 			return this.firstName;
+		}
+		
+		public String getDateOfBirth(){
+			return this.dateOfBirth;
 		}
 		
 		public String getDestination(){
@@ -108,7 +137,7 @@ public class Ticket implements Serializable {
 			return this.seatNumber;
 		}
 		
-		public Date getDate(){
+		public String getDate(){
 			return this.date;
 		}
 		
@@ -116,17 +145,7 @@ public class Ticket implements Serializable {
 			return this.available;
 		}
 		
-		/**
-		 * Returns a string in the format of a printable ticket
-		 * 
-		 * *****The format needs to be decided********
-		 * 
-		 * 
-		 * @return
-		 */
-		public String print(){
-			return null;
-		}
+
 		
 		
 		

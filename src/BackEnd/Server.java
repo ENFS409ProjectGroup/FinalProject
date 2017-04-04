@@ -3,6 +3,9 @@ package BackEnd;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.sql.SQLException;
 import java.util.LinkedList;
 
@@ -14,8 +17,13 @@ import java.util.LinkedList;
  *
  */
 public class Server{
+	
+	static final int PORTNUM = 7766;
+	
 	private Driver driver;
-	private Booking bookFlight;
+	private ServerSocket serverSocket;
+	private Socket socket;
+	
 	private LinkedList<Flight> flights;
 	
 
@@ -26,14 +34,36 @@ public class Server{
 		driver.initialize();
 		flights = new LinkedList<Flight>();
 		
+
+		
 	}
 	
 	public void run(){
 		ThreadPool pool = new ThreadPool(6);
 		
-		while(true){
-			
+		try{
+			serverSocket = new ServerSocket(PORTNUM);
+		}
+		catch(IOException e){
+			System.err.println("There was an error creating the serverSocket.");
+			System.err.println(e.getMessage());
+			System.err.println("Program terminating...");
+			System.exit(1);
+		}
 		
+		while(true){
+			try{
+				socket = serverSocket.accept();
+			}
+			catch(IOException e){
+				System.err.println("Error connecting to socket.");
+				System.err.println(e.getMessage());
+				System.err.println("Program terminating...");
+				System.exit(1);
+			}
+			
+			Task newTask = new Task(this, socket);
+			pool.execute(newTask);	
 		
 		}
 	}
@@ -71,6 +101,8 @@ public class Server{
 				
 			}
 			
+			insertFlights(flights);
+			
 			read.close();
 			
 		}
@@ -84,22 +116,54 @@ public class Server{
 		
 	}
 	
+	public void insertFlights(LinkedList<Flight> flights){
+		for(int i = 0; i < flights.size(); i++){
+			String [] toInsert = new String[8];
+			toInsert[0] = flights.get(i).getDestination();
+			toInsert[1] = flights.get(i).getSource();
+			toInsert[2] = flights.get(i).getDepartureTime();
+			toInsert[3] = flights.get(i).getDuration();
+			toInsert[4] = Integer.toString(flights.get(i).getTotalSeats());
+			toInsert[5] = Integer.toString(flights.get(i).getSeatsAvailable());
+			toInsert[6] = Float.toString(flights.get(i).getPrice());
+			toInsert[7] = flights.get(i).getDate();
+			
+			String sqlOut = "insert into flights"
+					+ "(flightNumber, destination, source, departureTime, duration, totalSeats, seatsAvailable, price, date)"
+					+ "values ('" + flights.get(i).getFlightNumber() + "', '"
+					+ toInsert[0] + "', '" + toInsert[1] + "', '" + toInsert[2] + "', '" 
+					+ toInsert[3] + "', '" + toInsert[4] + "', '" + toInsert[5] + "', '" 
+					+ toInsert[6] + "', '" + toInsert[7] + "')";
+			
+			try{
+				driver.getState().executeUpdate(sqlOut);
+			}
+			catch(SQLException e){
+				System.err.println("There was a problem inserting to flights.");
+				System.err.println(e.getMessage());
+				System.err.println("Program terminating...");
+				System.exit(1);
+			}
+		}
+	}
+	
 	public void insertTickets(LinkedList<Ticket> tickets, int flightNumber){
-		for(int i = 1; i <= tickets.size(); i++){
-			String [] toInsert = new String[7];
+		for(int i = 0, j = 1; i < tickets.size(); i++, j++){
+			String [] toInsert = new String[8];
 			toInsert[0] = tickets.get(i).getLastName();
 			toInsert[1] = tickets.get(i).getFirstName();
-			toInsert[2] = tickets.get(i).getDestination();
-			toInsert[3] = tickets.get(i).getSource();
-			toInsert[4] = tickets.get(i).getDepartureTime();
-			toInsert[5] = tickets.get(i).getDuration();
-			toInsert[6] = tickets.get(i).getDate().printDate();
+			toInsert[2] = null;
+			toInsert[3] = tickets.get(i).getDestination();
+			toInsert[4] = tickets.get(i).getSource();
+			toInsert[5] = tickets.get(i).getDepartureTime();
+			toInsert[6] = tickets.get(i).getDuration();
+			toInsert[7] = tickets.get(i).getDate();
 			
 			String sqlOut = "insert into tickets"
-					+ "(flightNumber, seatNumber, lastName, firstName, destination, source, departureTime, duration, date, availiable)"
-					+ "values ('" + flightNumber + "', '" + i + "', '" + toInsert[0] + "', '" + toInsert[1] + "', " 
+					+ "(flightNumber, seatNumber, lastName, firstName, dateOfBirth, destination, source, departureTime, duration, date, available)"
+					+ "values ('" + flightNumber + "', '" + j + "', '" + toInsert[0] + "', '" + toInsert[1] + "', '" 
 					+ toInsert[2] + "', '" + toInsert[3] + "', '" + toInsert[4] + "', '"
-					+ toInsert[5] + "', '" + toInsert[6] + "', '" + 1 + "')";
+					+ toInsert[5] + "', '" + toInsert[6] + "', '" + toInsert[7] + "', '" + 1 + "')";
 		
 			try{
 				driver.getState().executeUpdate(sqlOut);
@@ -133,7 +197,7 @@ public class Server{
 	}
 	
 	public void deleteFlight(String toDelete){
-		String sqlOut = "delete from flights where flightNumber='" + toDelete + "'";
+		String sqlOut = "delete from flights where flightNumber='" + Integer.parseInt(toDelete) + "'";
 		
 		try{
 			driver.getState().executeUpdate(sqlOut);
@@ -144,6 +208,36 @@ public class Server{
 			System.err.println("Program terminating...");
 			System.exit(1);
 		}
+	}
+	
+	public void deleteFlightTickets(String toDelete){
+		String sqlOut = "delete from tickets where flightNumber='" + Integer.parseInt(toDelete) + "'";
+		
+		try{
+			driver.getState().executeUpdate(sqlOut);
+		}
+		catch(SQLException e){
+			System.err.println("There was a problem deleting from tickets.");
+			System.err.println(e.getMessage());
+			System.err.println("Program terminating...");
+			System.exit(1);
+		}
+	}
+	
+	public synchronized void updateFlightList(){
+			flights = driver.returnFlights();
+	}
+	
+	public synchronized LinkedList<Flight> search(String source, String destination, String date){
+		return null;
+	}
+	
+	public synchronized Ticket bookTicket(String firstName, String lastName, String dateOfBirth){
+		return null;
+	}
+	
+	public synchronized void deleteTicket(Ticket toDelete){
+		
 	}
 	
 	public static void main(String []args){

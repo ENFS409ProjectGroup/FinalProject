@@ -1,5 +1,13 @@
 package BackEnd;
 
+import java.io.BufferedReader;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.LinkedList;
+
 /**
  * This class is used as a communicator to the thread pool. The Server 
  * will package a request from the client in a task and send it to the 
@@ -9,12 +17,102 @@ package BackEnd;
  * @author Tevin Schmidt
  *
  */
-public class Task implements Runnable {
-
+public class Task extends Thread {
+	
+	private static final String SPLITCHAR = " ";
+	private static final String SEARCH = "search";
+	private static final String BOOK = "book";
+	private static final String DELETE = "delete";
+	
+	private Server theServer;
+	private Socket theSocket;
+	private BufferedReader in;
+	private ObjectOutputStream out;
+	
+	public Task(Server theServer, Socket theSocket){
+		this.theServer = theServer;
+		this.theSocket = theSocket;
+		
+		try{
+			out = new ObjectOutputStream( new FileOutputStream( "fromServer.ser"));
+			in = new BufferedReader( new InputStreamReader(theSocket.getInputStream()));
+		}
+		catch(IOException e){
+			System.err.println("Problem creating ObjectOutputStream.");
+			System.err.println(e.getMessage());
+			System.err.println("Program terminating...");
+			System.exit(1);
+		}
+	}
+	
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
+		try{
+			while(!theSocket.isClosed()){
+				if(in.ready()){
+					String newLine = in.readLine();
+					String [] opps = newLine.split(SPLITCHAR);
+					
+					if(opps[0].contentEquals(SEARCH)){
+						LinkedList<Flight> rv = theServer.search(opps[1], opps[2], opps[3]);
+						serializeFlights(rv);
+					}
+					else if(opps[0].contentEquals(BOOK)){
+						Ticket rv = theServer.bookTicket(opps[1], opps[2], opps[3]);
+						serializeTicket(rv);
+					}
+					else if(opps[0].contentEquals(DELETE)){
+						
+					}
+					
+				}
+			
+			}
+		}
+		catch(IOException e){
+			System.err.println("Problem reading from client.");
+			System.err.println(e.getMessage());
+			System.err.println("Program terminating...");
+			System.exit(1);
+		}
+		
+		try{
+			in.close();
+			out.close();
+			theSocket.close();
+		}
+		catch(IOException e){
+			System.err.println("Error closing streams.");
+			System.err.println(e.getMessage());
+			System.err.println("Program terminating...");
+			System.exit(1);
+		}
 		
 	}
+	
+	public void serializeFlights(LinkedList<Flight> toSend){
+		try{
+			out.writeObject(toSend);
+		}
+		catch(IOException e){
+			System.err.println("Error writing to file.");
+			System.err.println(e.getMessage());
+			System.err.println("Program terminating...");
+			System.exit(1);
+		}
+	}
+	
+	public void serializeTicket(Ticket toSend){
+		try{
+			out.writeObject(toSend);
+		}
+		catch(IOException e){
+			System.err.println("Error writing to file.");
+			System.err.println(e.getMessage());
+			System.err.println("Program terminating...");
+			System.exit(1);
+		}
+	}
+	
 
 }

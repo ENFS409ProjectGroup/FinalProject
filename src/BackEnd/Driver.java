@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.LinkedList;
 
 
 public class Driver {
@@ -36,12 +37,13 @@ public class Driver {
 	private static final String TICKETS_COLUMN_SEATNUMBER = "seatNumber";
 	private static final String TICKETS_COLUMN_LASTNAME = "lastName";
 	private static final String TICKETS_COLUMN_FIRSTNAME = "firstName";
+	private static final String TICKETS_COLUMN_DATEOFBIRTH = "dateOfBirth";
 	private static final String TICKETS_COLUMN_DESTINATION = "destination";
 	private static final String TICKETS_COLUMN_SOURCE = "source";
-	private static final String TICKETS_COLUMN_DEPARTURETIME = "depatureTime";
+	private static final String TICKETS_COLUMN_DEPARTURETIME = "departureTime";
 	private static final String TICKETS_COLUMN_DURATION = "duration";
 	private static final String TICKETS_COLUMN_DATE = "date";
-	private static final String TICKETS_COLUMN_AVALIABLE = "avaliable";
+	private static final String TICKETS_COLUMN_AVALIABLE = "available";
 	
 	
 	public Driver(){
@@ -112,6 +114,7 @@ public class Driver {
 				TICKETS_COLUMN_SEATNUMBER + " INTEGER, " +
 				TICKETS_COLUMN_LASTNAME + " TEXT, " + 
 				TICKETS_COLUMN_FIRSTNAME + " TEXT, " + 
+				TICKETS_COLUMN_DATEOFBIRTH + " TEXT, " +
 				TICKETS_COLUMN_DESTINATION + " TEXT, " +
 				TICKETS_COLUMN_SOURCE + " TEXT, " +
 				TICKETS_COLUMN_DEPARTURETIME + " TEXT, " +
@@ -128,9 +131,75 @@ public class Driver {
 			System.err.println(e.getMessage());
 			System.err.println("Program terminating...");
 			System.exit(1);
+		}		
+		
+	}
+	
+	public LinkedList<Flight> returnFlights(){
+		LinkedList<Flight> rv = new LinkedList<Flight>();
+		try{
+			resultSet = statement.executeQuery("select * from flights");
+			while(resultSet.next()){
+				Flight tempFlight = new Flight();
+				tempFlight.setFlightNumber(resultSet.getInt("flightNumber"));
+				tempFlight.setDestination(resultSet.getString("destination"));
+				tempFlight.setSource(resultSet.getString("source"));
+				tempFlight.setDepartureTime(resultSet.getString("departureTime"));
+				tempFlight.setDuration(resultSet.getString("duration"));
+				tempFlight.setTotalSeats(Integer.parseInt(resultSet.getString("totalSeats")));
+				tempFlight.setAvailable(Integer.parseInt(resultSet.getString("seatsAvailable")));
+				tempFlight.setPrice(Float.parseFloat(resultSet.getString("price")));
+				tempFlight.setDate(resultSet.getString("date"));
+				
+				tempFlight.setTickets(returnTickets(tempFlight.getFlightNumber()));
+				
+				rv.add(tempFlight);
+			}
+		}
+		catch(SQLException e){
+			System.err.println("Problem updating from database.");
+			System.err.println(e.getMessage());
+			System.err.println("Program terminating...");
+			System.exit(1);
 		}
 		
-				
+		return rv;
+	}
+	
+	public LinkedList<Ticket> returnTickets(int flightNumber){
+		LinkedList<Ticket> rv = new LinkedList<Ticket>();
+		try{
+			resultSet = statement.executeQuery("select * from tickets");
+			while(resultSet.next()){
+				if(resultSet.getInt("flightNumber") == flightNumber ){
+					Ticket tempTicket = new Ticket();
+					tempTicket.setSeatNumber(resultSet.getInt("seatNumber"));
+					tempTicket.setLastName(resultSet.getString("lastName"));
+					tempTicket.setFirstName(resultSet.getString("firstName"));
+					tempTicket.setDateOfBirth(resultSet.getString("dateOfBirth"));
+					tempTicket.setDestination(resultSet.getString("destination"));
+					tempTicket.setSource(resultSet.getString("departureTime"));
+					tempTicket.setDuration(resultSet.getString("duration"));
+					tempTicket.setDate(resultSet.getString("date"));
+					if(resultSet.getInt("available") == 1){
+						tempTicket.setAvalable(true);
+					}
+					else{
+						tempTicket.setAvalable(false);
+					}
+					
+					rv.add(tempTicket);
+				}
+			}
+			
+		}
+		catch(SQLException e){
+			System.err.println("Problem updating from database.");
+			System.err.println(e.getMessage());
+			System.err.println("Program terminating...");
+			System.exit(1);
+		}
 		
+		return rv;
 	}
 }

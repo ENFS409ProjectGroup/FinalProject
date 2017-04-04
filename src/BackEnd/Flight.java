@@ -1,5 +1,6 @@
 package BackEnd;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 
 /**
@@ -9,8 +10,10 @@ import java.util.LinkedList;
  * @author Tevin Schmidt
  *
  */
-public class Flight {
+public class Flight implements Serializable{
 		
+	private static final long serialVersionUID = 4748L;
+	
 	private LinkedList<Ticket> tickets;
 	private int flightNumber;
 	private int totalSeats;
@@ -20,7 +23,11 @@ public class Flight {
 	private String departureTime;
 	private String duration;
 	private float price;
-	private Date date;
+	private String date;
+	
+	public Flight(){
+		this.tickets = new LinkedList<Ticket>();
+	}
 	
 	public Flight(String [] methods){
 		if(methods.length == 9){
@@ -32,7 +39,7 @@ public class Flight {
 			this.totalSeats = Integer.parseInt(methods[5]);
 			this.seatsAvailable = Integer.parseInt(methods[6]);
 			this.price = Float.parseFloat(methods[7]);
-			this.date = dateFromString(methods[8]);
+			this.date = methods[8];
 			
 			createTickets(totalSeats);
 
@@ -71,8 +78,12 @@ public class Flight {
 		this.price = price;
 	}
 	
-	public void setDate(Date date){
+	public void setDate(String date){
 		this.date = date;
+	}
+	
+	public void setTickets(LinkedList<Ticket> tickets){
+		this.tickets = tickets;
 	}
 	
 	public int getFlightNumber(){
@@ -107,7 +118,7 @@ public class Flight {
 		return this.price;
 	}
 	
-	public Date getDate(){
+	public String getDate(){
 		return this.date;
 	}
 	
@@ -122,19 +133,6 @@ public class Flight {
 		}
 	}
 	
-	private Date dateFromString(String theDate){
-		String [] temp = theDate.split("/");
-		Date newDate = new Date(temp[0], temp[1], temp[2]);
-		return newDate;
-	}
-	
-	
-	public void addPassanger(Passenger newPass){
-		
-	}
-	
-	public void removePassanger(Passenger toRemove){
-		
-	}
+
 
 }
