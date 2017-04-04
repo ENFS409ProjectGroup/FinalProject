@@ -26,12 +26,27 @@ import java.awt.event.ActionEvent;
 
 public class Passenger implements ListSelectionListener{
 
-	private String test = "Calgary Halifax 01-17-18";
+	private String test = "Calgary Halifax 01/17/18";
 	
+	//Input from search query
+	private String src;
+	private String dst;
+	private String date;
+	
+	//Input from booking ticket query
+	private String firstName;
+	private String lastName;
+	private String DOB;
+		
 	private JFrame frame;
 	private JTextField textField;
 	private JTextField textField_1;
 	private JTextField textField_2;
+	
+	private JButton btnSelect;
+	
+	private JList list;
+	private DefaultListModel listModel;
 
 	/**
 	 * Launch the application.
@@ -40,7 +55,7 @@ public class Passenger implements ListSelectionListener{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Passenger window = new Passenger();
+					Passenger window = new Passenger();					
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -53,7 +68,7 @@ public class Passenger implements ListSelectionListener{
 	 * Create the application.
 	 */
 	public Passenger() {
-		initialize();
+		initialize();		
 	}
 
 	/**
@@ -125,8 +140,8 @@ public class Passenger implements ListSelectionListener{
 		textField_2.setColumns(10);
 		
 		//Window for search results
-		DefaultListModel<String> listModel = new DefaultListModel<String>();
-		JList list = new JList(listModel);
+		listModel = new DefaultListModel();
+		list = new JList(listModel);
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list.setSelectedIndex(0);
 		list.addListSelectionListener(this);
@@ -140,39 +155,64 @@ public class Passenger implements ListSelectionListener{
 		JButton btnGetFlights = new JButton("Get Flights");
 		btnGetFlights.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				//ERROR check if boxes are empty
-				//Display search results from database
-				listModel.addElement(test);
+				src = textField.getText();
+				dst = textField_1.getText();
+				date = textField_2.getText();
+				//ERROR checking to make sure all boxes are populated
+				if(textField.getText().equals("") || textField_1.getText().equals("") || textField_2.getText().equals("")){
+					UIManager.put("OptionPane.okButtonText", "OK");
+					JOptionPane.showMessageDialog(null, "Please make sure all fields are specified.");
+					return;
+				}
+				Client.search(src, dst, date); //Send strings to client class to send to server
+				
+				listModel.addElement(test); //Display results from search in window HERE
 			}
 		});
 		btnGetFlights.setFont(new Font("Tahoma", Font.BOLD, 11));
 		btnGetFlights.setForeground(new Color(0, 0, 0));
-		btnGetFlights.setBounds(194, 111, 162, 23);
+		btnGetFlights.setBounds(185, 111, 130, 23);
 		frame.getContentPane().add(btnGetFlights);
 		
-		JButton btnSelect = new JButton("View Flight Details");
+		btnSelect = new JButton("View Flight Details");
+		btnSelect.setEnabled(false);
 		btnSelect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				int index = list.getSelectedIndex();
+				String value = (String) listModel.getElementAt(index);
+				System.out.println("Element at:" + value);
+				
 				UIManager.put("OptionPane.okButtonText", "Book Flight");
-				//Display additional information from database
-				int value = JOptionPane.showOptionDialog(null, test , "Flight Booking", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
-				if(value == JOptionPane.OK_OPTION){
+				
+				//Display additional information from flight HERE
+				
+				int val = JOptionPane.showOptionDialog(null, value , "Flight Booking", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
+				if(val == JOptionPane.OK_OPTION){
 					JPanel panel = new JPanel();
 					JTextField field1 = new JTextField(10);
-					panel.add(new JLabel("Enter First Name:")); //Student ID field
+					panel.add(new JLabel("Enter First Name:"));
 					panel.add(field1);
 					JTextField field2 = new JTextField(10);
-					panel.add(new JLabel("Enter Last Name:")); //Faculty field
+					panel.add(new JLabel("Enter Last Name:"));
 					panel.add(field2);
 					JTextField field3 = new JTextField(10);
-					panel.add(new JLabel("Enter Date of Birth (mm-dd-yyyy):")); //Major field
+					panel.add(new JLabel("Enter Date of Birth (mm-dd-yyyy):"));
 					panel.add(field3);
-					int val = JOptionPane.showConfirmDialog(frame, panel, "Flight Booking", JOptionPane.OK_CANCEL_OPTION);
-					if(val == JOptionPane.OK_OPTION){
+					int val_2 = JOptionPane.showConfirmDialog(frame, panel, "Flight Booking", JOptionPane.OK_CANCEL_OPTION);
+					if(val_2 == JOptionPane.OK_OPTION){
+						firstName = field1.getText();
+						lastName = field2.getText();
+						DOB = field3.getText();
 						//ERROR check if boxes are empty
+						if(field1.getText().equals("") || field2.getText().equals("") || field3.getText().equals("")){
+							UIManager.put("OptionPane.okButtonText", "OK");
+							JOptionPane.showMessageDialog(null, "Please try again. Make sure all fields are specified."); 
+							return;
+						}
+						Client.book(firstName, lastName, DOB); //Send booking info to server
+
 						UIManager.put("OptionPane.okButtonText", "OK");
 						JOptionPane.showMessageDialog(null, "Your flight has been booked! Your flight ticket is being printed...");
-						// create/ print ticket
 					}
 				}
 			}
@@ -181,11 +221,32 @@ public class Passenger implements ListSelectionListener{
 		btnSelect.setBounds(45, 343, 171, 23);
 		frame.getContentPane().add(btnSelect);
 		
+		JButton clear = new JButton("Clear");
+		clear.addActionListener(new ActionListener() {
+			public void actionPerformed (ActionEvent arg0){
+				textField.setText("");
+				textField_1.setText("");
+				textField_2.setText("");
+				
+				listModel.clear();				
+			}
+		});
+		clear.setFont(new Font("Tahoma", Font.BOLD, 11));
+		clear.setBounds(330, 111, 93, 23);
+		frame.getContentPane().add(clear);
 	}
 
-	@Override
-	public void valueChanged(ListSelectionEvent arg0) {
-		// must write method for selecting items in the list
-		
+	public void valueChanged(ListSelectionEvent e) {
+		if (e.getValueIsAdjusting() == false) {
+			if(list.getSelectedIndex() == -1) {
+				btnSelect.setEnabled(false);
+			}else{
+				btnSelect.setEnabled(true);
+			}
+		}
 	}
+			
 }
+
+
+
