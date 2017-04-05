@@ -18,10 +18,14 @@ public class Client extends Thread {
 	private static String source;
 	private static String destination;
 	private static String date;
+	private static String duration;
+	private static String departTime;
+	private static String price;
+	private static String flightNumber;
 	/**
 	 * Strings needed for book method
 	 */
-	private static String flightNumber;
+	
 	private static String firstName;
 	private static String lastName;
 	private static String dob;
@@ -35,7 +39,7 @@ public class Client extends Thread {
 	/**
 	 * Returned flights from search
 	 */
-	private LinkedList<Flight> flights;
+	LinkedList<Flight> flights;
 	private Ticket theTicket;
 	
 	
@@ -46,7 +50,7 @@ public class Client extends Thread {
 	 */
 	public Client() {
 		try{
-			theSocket = new Socket("localhost", 7766);
+			theSocket = new Socket("localhost", 3306);
 			socketIn = new ObjectInputStream(theSocket.getInputStream());
 			socketOut = new PrintWriter((theSocket.getOutputStream()), true);
 			
@@ -67,9 +71,19 @@ public class Client extends Thread {
 				}
 				else if(output.contentEquals("BOOK")){
 					System.out.println("Send book query.");
-					socketOut.println(output + "\t" + firstName + "\t" + lastName + "\t" + dob);
+					socketOut.println(output + "\t" + firstName + "\t" + lastName + "\t" + dob + "\t" + flightNumber);
 					output = "";
 					deserializeTicket();
+				}
+				else if(output.contentEquals("REMOVE")){
+					System.out.println("Send remove ticket query.");
+					socketOut.println(output);
+					//more
+				}
+				else if(output.contentEquals("ADD")){
+					System.out.println("Send Add Flight query.");
+					socketOut.println(output);
+					//more
 				}
 				else{
 					System.out.println("Waiting...");
@@ -94,11 +108,10 @@ public class Client extends Thread {
 	
 	@SuppressWarnings("unchecked")
 	public void deserializeFlightList() {
-		//deserialize flight list
 		try{
 			Object flightIn = socketIn.readObject();
 			flights = new LinkedList<Flight>( (LinkedList<Flight>) flightIn );
-			flights.get(0).seeFlight();
+			//flights.get(0).seeFlight();
 			
 		}
 		catch(IOException e){
@@ -119,7 +132,6 @@ public class Client extends Thread {
 	
 
 	public void deserializeTicket(){
-		//deserialize ticket
 		try{
 			theTicket = (Ticket) socketIn.readObject();
 		}
@@ -136,6 +148,10 @@ public class Client extends Thread {
 			System.exit(1);
 		}
 	}
+	
+	public LinkedList<Flight> getFlights(){
+		return flights;
+	}
 	public static void search (String src, String dst, String dt){
 		source = src;
 		destination = dst;
@@ -150,12 +166,28 @@ public class Client extends Thread {
 	
 	// TODO Can you change this so you give me a flight number too, 
 	// cuz I need to know which flight to access to book the ticket
-	public static void book (String fn, String ln, String db){
+	public static void book (String fn, String ln, String db, String fnum){
 		firstName = fn;
 		lastName = ln;
 		dob = db;
+		flightNumber = fnum;
 		
 		output = "BOOK";
+	}
+	
+	public static void removeTicket(String tckt){
+		//Will remove string??
+		
+		output = "REMOVE";
+	}
+	public static void addFlight(String dst, String src, String dprt, String dur, String prc){
+		destination = dst;
+		source = src;
+		departTime = dprt;
+		duration = dur;
+		price = prc;
+		
+		output = "ADD";
 	}
 
 }

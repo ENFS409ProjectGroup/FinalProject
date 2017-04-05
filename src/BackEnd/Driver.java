@@ -14,10 +14,11 @@ public class Driver {
 	private ResultSet resultSet;
 	
 	private static String jdbcDriver =  "com.mysql.jdbc.Driver";
-	private static String dbAddress = "jdbc:mysql://localhost:3306/";
+	private static String dbAddress = "jdbc:mysql://localhost:7766/";
+	private static String SSL = "/?autoReconnect=true&useSSL=false";
 	private static String theDB = "AirLineCatalogue";
-	private static String userName = "Client";
-	private static String password = "Client";
+	private static String userName = "root";
+	private static String password = "1993MF1967";
 	
 	private static final String FLIGHTS_TABLE_NAME = "flights";
 	private static final String FLIGHTS_COLUMN_FLIGHTNUMBER = "flightNumber";
@@ -52,7 +53,7 @@ public class Driver {
 			connection = DriverManager.getConnection(dbAddress, userName, password);
 			statement = connection.createStatement();
 			resultSet = null;
-			statement.executeUpdate("CREATE DATABASE IF NOT EXISTS " + theDB + ";" );
+			statement.executeUpdate("CREATE DATABASE IF NOT EXISTS " + theDB +";" );
 			connection = DriverManager.getConnection(dbAddress + theDB, userName, password);
 			statement = connection.createStatement();
 		}

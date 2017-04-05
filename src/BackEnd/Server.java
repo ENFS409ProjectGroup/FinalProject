@@ -18,7 +18,7 @@ import java.util.LinkedList;
  */
 public class Server{
 	
-	static final int PORTNUM = 7766;
+	static final int PORTNUM = 3306;
 	
 	private Driver driver;
 	private ServerSocket serverSocket;

@@ -10,6 +10,8 @@ import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import BackEnd.Flight;
+
 import java.awt.Font;
 import java.awt.SystemColor;
 import java.awt.Color;
@@ -22,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import java.awt.event.ActionListener;
+import java.util.LinkedList;
 import java.awt.event.ActionEvent;
 
 public class Passenger extends Client implements ListSelectionListener{
@@ -39,6 +42,8 @@ public class Passenger extends Client implements ListSelectionListener{
 	private String firstName;
 	private String lastName;
 	private String DOB;
+	
+	private LinkedList<Flight> flights;
 		
 	private JFrame frame;
 	private JTextField textField;
@@ -111,7 +116,7 @@ public class Passenger extends Client implements ListSelectionListener{
 		txtpnTo.setBounds(206, 82, 81, 25);
 		frame.getContentPane().add(txtpnTo);
 		
-		//From input box
+		//"From:" input box
 		textField = new JTextField();
 		textField.setBounds(52, 82, 150, 20);
 		frame.getContentPane().add(textField);
@@ -163,8 +168,19 @@ public class Passenger extends Client implements ListSelectionListener{
 					return;
 				}
 				search(src, dst, date); //Send strings to client class to send to server
+				getFlights();
+
 				
-				listModel.addElement(test); //Display results from search in window HERE
+				//if(flights.size() == null){
+					//JOptionPane.showMessageDialog(null, "Sorry we do not have a flight that matches your search");
+				//}
+				//System.out.println(flights.get(0).getSource() + "is here!!!!");
+				
+				//for(int i = 0; i < flights.size(); i++){
+					//listModel.addElement(flights.get(i));
+				//} 
+					
+				//listModel.addElement(test); //Display results from search in window HERE
 			}
 		});
 		btnGetFlights.setFont(new Font("Tahoma", Font.BOLD, 11));
@@ -207,7 +223,7 @@ public class Passenger extends Client implements ListSelectionListener{
 							JOptionPane.showMessageDialog(null, "Please try again. Make sure all fields are specified."); 
 							return;
 						}
-						book(firstName, lastName, DOB); //Send booking info to server
+						//book(firstName, lastName, DOB); //Send booking info to server
 
 						UIManager.put("OptionPane.okButtonText", "OK");
 						JOptionPane.showMessageDialog(null, "Your flight has been booked! Your flight ticket is being printed...");
