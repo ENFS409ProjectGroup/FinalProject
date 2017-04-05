@@ -12,6 +12,7 @@ public class Driver {
 	private Connection connection;
 	private Statement statement;
 	private ResultSet resultSet;
+	private ResultSet resultSet2;
 	
 	private static String jdbcDriver =  "com.mysql.jdbc.Driver";
 	private static String dbAddress = "jdbc:mysql://localhost:7766/";
@@ -152,10 +153,15 @@ public class Driver {
 				tempFlight.setPrice(Float.parseFloat(resultSet.getString("price")));
 				tempFlight.setDate(resultSet.getString("date"));
 				
-				tempFlight.setTickets(returnTickets(tempFlight.getFlightNumber()));
-				
 				rv.add(tempFlight);
 			}
+			
+			for(int i = 0; i < rv.size(); i++){
+				rv.get(i).setTickets(returnTickets(rv.get(i).getFlightNumber()));
+			}
+			
+			
+			
 		}
 		catch(SQLException e){
 			System.err.println("Problem updating from database.");

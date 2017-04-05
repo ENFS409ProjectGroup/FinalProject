@@ -227,13 +227,16 @@ public class Server{
 	}
 	
 	public synchronized void updateFlightList(){
+		synchronized (flights){	
 			flights = driver.returnFlights();
+		}
 	}
 	
 	public synchronized LinkedList<Flight> search(String source, String destination, String date){
 		LinkedList<Flight> rv = new LinkedList<Flight>();
 		synchronized (flights) {
 			updateFlightList();
+			System.out.println(flights.size());
 			for(int i = 0; i < flights.size(); i++){
 				Flight tempFlight = flights.get(i);
 				if(tempFlight.getSource().contentEquals(source) 
@@ -250,16 +253,95 @@ public class Server{
 	}
 	
 	public synchronized Ticket bookTicket(int flightNumber, String firstName, String lastName, String dateOfBirth){
-/*		synchronized(flights) {
+		synchronized(flights) {
 			updateFlightList();
-			for()
+			LinkedList<Ticket> tempTickets = new LinkedList<Ticket>();
+			for(int i = 0; i < flights.size(); i++){
+				Flight tempFlight = flights.get(i);
+				if(tempFlight.getFlightNumber() == flightNumber){
+					tempTickets = tempFlight.getTickets();
+					break;
+				}
+			}
 			
-		}*/
+			for(int i = 0, j = 1; i < tempTickets.size(); i++, j++){
+				Ticket tempTicket = tempTickets.get(i);
+				if(tempTicket.getAvailable()){
+					updateTicketInDB(j,flightNumber,firstName,lastName,dateOfBirth);
+					return tempTicket;
+				}
+			}
+			
+		}
 		return null;
 	}
 	
-	public synchronized void deleteTicket(Ticket toDelete){
+	//have to figure out how to decrement avaliavleSeats
+	public synchronized void updateTicketInDB(int seatNum, int flightNumber, String firstName, String lastName, String dateOfBirth){
+		Flight tempFlight = searchFlights(flightNumber);
+		int seatsLeft = tempFlight.getSeatsAvailable();
+		seatsLeft--;
 		
+		String sqlOut1 = "UPDATE tickets SET firstName='" + firstName + "' WHERE (flightNumber='" + flightNumber + "' AND seatNumber='" + seatNum +"')";
+		String sqlOut2 = "UPDATE tickets SET lastName='" + lastName + "' WHERE (flightNumber='" + flightNumber + "' AND seatNumber='" + seatNum +"')";
+		String sqlOut3 = "UPDATE tickets SET dateOfBirth='" + dateOfBirth + "' WHERE (flightNumber='" + flightNumber + "' AND seatNumber='" + seatNum +"')";
+		String sqlOut4 = "UPDATE tickets SET available='" + 0 + "' WHERE (flightNumber='" + flightNumber + "' AND seatNumber='" + seatNum +"')";
+		String sqlOut5 = "UPDATE flights SET seatsAvailable='" + seatsLeft + "' WHERE (flightNumber='" + flightNumber  +"')";
+		
+		try{
+			driver.getState().executeUpdate(sqlOut1);
+			driver.getState().executeUpdate(sqlOut2);
+			driver.getState().executeUpdate(sqlOut3);
+			driver.getState().executeUpdate(sqlOut4);
+			driver.getState().executeUpdate(sqlOut5);
+		}
+		catch(SQLException e){
+			System.err.println("There was a problem updating ticket.");
+			System.err.println(e.getMessage());
+			System.err.println("Program terminating...");
+			System.exit(1);
+		}
+	}
+	
+	//have to figure out how to increment availableSeats
+	public synchronized void deleteTicket(int flightNumber, int seatNum){	
+		Flight tempFlight = searchFlights(flightNumber);
+		int seatsLeft = tempFlight.getSeatsAvailable();
+		seatsLeft++;
+		
+		String sqlOut1 = "UPDATE tickets SET firstName='" + null + "' WHERE (flightNumber='" + flightNumber + "' AND seatNumber='" + seatNum +"')";
+		String sqlOut2 = "UPDATE tickets SET lastName='" + null + "' WHERE (flightNumber='" + flightNumber + "' AND seatNumber='" + seatNum +"')";
+		String sqlOut3 = "UPDATE tickets SET dateOfBirth='" + null + "' WHERE (flightNumber='" + flightNumber + "' AND seatNumber='" + seatNum +"')";
+		String sqlOut4 = "UPDATE tickets SET available='" + 1 + "' WHERE (flightNumber='" + flightNumber + "' AND seatNumber='" + seatNum +"')";
+		String sqlOut5 = "UPDATE flights SET seatsAvailable='" + seatsLeft + "' WHERE (flightNumber='" + flightNumber  +"')";
+		
+		try{
+			driver.getState().executeUpdate(sqlOut1);
+			driver.getState().executeUpdate(sqlOut2);
+			driver.getState().executeUpdate(sqlOut3);
+			driver.getState().executeUpdate(sqlOut4);
+			driver.getState().executeUpdate(sqlOut5);
+		}
+		catch(SQLException e){
+			System.err.println("There was a problem updating ticket.");
+			System.err.println(e.getMessage());
+			System.err.println("Program terminating...");
+			System.exit(1);
+		}
+	}
+	
+	private synchronized Flight searchFlights(int flightNumber){
+		synchronized (flights){
+			for(int i = 0; i < flights.size(); i++){
+				Flight tempFlight = flights.get(i);
+				if(tempFlight.getFlightNumber() == flightNumber){
+					return tempFlight;
+				}
+			}
+			
+			return null;
+			
+		}
 	}
 	
 	public static void main(String []args){
