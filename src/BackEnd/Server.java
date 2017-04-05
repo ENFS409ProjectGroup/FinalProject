@@ -236,6 +236,7 @@ public class Server{
 		LinkedList<Flight> rv = new LinkedList<Flight>();
 		synchronized (flights) {
 			updateFlightList();
+			System.out.println(flights.size());
 			for(int i = 0; i < flights.size(); i++){
 				Flight tempFlight = flights.get(i);
 				if(tempFlight.getSource().contentEquals(source) 
