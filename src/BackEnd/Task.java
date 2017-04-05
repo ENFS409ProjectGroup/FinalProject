@@ -19,10 +19,10 @@ import java.util.LinkedList;
  */
 public class Task extends Thread {
 	
-	private static final String SPLITCHAR = " ";
-	private static final String SEARCH = "search";
-	private static final String BOOK = "book";
-	private static final String DELETE = "delete";
+	private static final String SPLITCHAR = "\\t";
+	private static final String SEARCH = "SEARCH";
+	private static final String BOOK = "BOOK";
+	private static final String DELETE = "DELETE";
 	
 	private Server theServer;
 	private Socket theSocket;
@@ -51,23 +51,43 @@ public class Task extends Thread {
 			while(!theSocket.isClosed()){
 				if(in.ready()){
 					String newLine = in.readLine();
+					System.out.println("Incoming message: " + newLine);
+					
 					String [] opps = newLine.split(SPLITCHAR);
 					
+					System.out.println("First keyWord & size: " + opps[0] + " " + opps[0].length());
+					System.out.println("Second keyWord & size: " + opps[1] + " " + opps[1].length());
+					System.out.println("Third keyWord & size: " + opps[2] + " " + opps[2].length());
+					System.out.println("Fourth keyWord & size: " + opps[3] + " " + opps[3].length());
+
+
+					
+					
 					if(opps[0].contentEquals(SEARCH)){
+						System.out.println("PERFORM SEARCH");
+						
 						LinkedList<Flight> rv = theServer.search(opps[1], opps[2], opps[3]);
-						serializeFlights(rv);
+						
+						for(int i = 0;  i < rv.size(); i++){
+							rv.get(i).seeFlight();
+						}
+						
+						//serializeFlights(rv);
 					}
 					else if(opps[0].contentEquals(BOOK)){
-						Ticket rv = theServer.bookTicket(opps[1], opps[2], opps[3]);
-						serializeTicket(rv);
+						System.out.println("PERFROM BOOK");
+						
+						//Ticket rv = theServer.bookTicket(opps[1], opps[2], opps[3]);
+						//serializeTicket(rv);
 					}
 					else if(opps[0].contentEquals(DELETE)){
 						
 					}
 					
 				}
-			
 			}
+			
+			System.out.println("Client disconected.");
 		}
 		catch(IOException e){
 			System.err.println("Problem reading from client.");

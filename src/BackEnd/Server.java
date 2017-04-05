@@ -53,6 +53,7 @@ public class Server{
 		
 		while(true){
 			try{
+				System.out.println("Waiting For client.");
 				socket = serverSocket.accept();
 			}
 			catch(IOException e){
@@ -63,6 +64,7 @@ public class Server{
 			}
 			
 			Task newTask = new Task(this, socket);
+			System.out.println("Client has connected.");
 			pool.execute(newTask);	
 		
 		}
@@ -229,7 +231,21 @@ public class Server{
 	}
 	
 	public synchronized LinkedList<Flight> search(String source, String destination, String date){
-		return null;
+		LinkedList<Flight> rv = new LinkedList<Flight>();
+		synchronized (flights) {
+			for(int i = 0; i < flights.size(); i++){
+				Flight tempFlight = flights.get(i);
+				if(tempFlight.getSource().contentEquals(source) 
+						&& tempFlight.getDestination().contentEquals(destination) 
+						&& tempFlight.getDate().contentEquals(date)){
+					
+					rv.add(tempFlight);
+					
+				}
+			}
+		}
+		
+		return rv;
 	}
 	
 	public synchronized Ticket bookTicket(String firstName, String lastName, String dateOfBirth){

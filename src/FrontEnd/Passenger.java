@@ -24,9 +24,11 @@ import javax.swing.JScrollPane;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class Passenger implements ListSelectionListener{
+public class Passenger extends Client implements ListSelectionListener{
 
 	private String test = "Calgary Halifax 01/17/18";
+	
+	private Client theClient;
 	
 	//Input from search query
 	private String src;
@@ -52,23 +54,19 @@ public class Passenger implements ListSelectionListener{
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					Passenger window = new Passenger();					
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+		Passenger window = new Passenger();					
+		window.frame.setVisible(true);
+		window.run();
+
+
 	}
 
 	/**
 	 * Create the application.
 	 */
 	public Passenger() {
-		initialize();		
+		super();
+		initialize();
 	}
 
 	/**
@@ -164,7 +162,7 @@ public class Passenger implements ListSelectionListener{
 					JOptionPane.showMessageDialog(null, "Please make sure all fields are specified.");
 					return;
 				}
-				Client.search(src, dst, date); //Send strings to client class to send to server
+				search(src, dst, date); //Send strings to client class to send to server
 				
 				listModel.addElement(test); //Display results from search in window HERE
 			}
@@ -196,7 +194,7 @@ public class Passenger implements ListSelectionListener{
 					panel.add(new JLabel("Enter Last Name:"));
 					panel.add(field2);
 					JTextField field3 = new JTextField(10);
-					panel.add(new JLabel("Enter Date of Birth (mm-dd-yyyy):"));
+					panel.add(new JLabel("Enter Date of Birth (mm/dd/yyyy):"));
 					panel.add(field3);
 					int val_2 = JOptionPane.showConfirmDialog(frame, panel, "Flight Booking", JOptionPane.OK_CANCEL_OPTION);
 					if(val_2 == JOptionPane.OK_OPTION){
@@ -209,7 +207,7 @@ public class Passenger implements ListSelectionListener{
 							JOptionPane.showMessageDialog(null, "Please try again. Make sure all fields are specified."); 
 							return;
 						}
-						Client.book(firstName, lastName, DOB); //Send booking info to server
+						book(firstName, lastName, DOB); //Send booking info to server
 
 						UIManager.put("OptionPane.okButtonText", "OK");
 						JOptionPane.showMessageDialog(null, "Your flight has been booked! Your flight ticket is being printed...");

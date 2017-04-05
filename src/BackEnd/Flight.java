@@ -133,6 +133,8 @@ public class Flight implements Serializable{
 		}
 	}
 	
-
+	public void seeFlight(){
+		System.out.println(flightNumber + " " + source + " " + destination + " " + date);
+	}
 
 }

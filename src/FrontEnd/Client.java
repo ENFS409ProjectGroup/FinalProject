@@ -9,7 +9,7 @@ import java.util.LinkedList;
 
 import BackEnd.Flight;
 
-public class Client {
+public class Client extends Thread {
 	/**
 	 * Strings needed for search method
 	 */
@@ -41,9 +41,9 @@ public class Client {
 	 * @param serverName
 	 * @param portNumber
 	 */
-	public Client(String serverName, int portNumber) {
+	public Client() {
 		try{
-			theSocket = new Socket(serverName, portNumber);
+			theSocket = new Socket("localhost", 7766);
 			socketIn = new BufferedReader(new InputStreamReader(theSocket.getInputStream()));
 			socketOut = new PrintWriter((theSocket.getOutputStream()), true);
 			
@@ -54,18 +54,31 @@ public class Client {
 	public void run() {
 		input = "";
 		output = "";
+		System.out.println("Entered Run state.");
 		while(true) {
 			try{
 				if(output.contentEquals("SEARCH")){
+					System.out.println("Send search query.");
 					socketOut.println(output + "\t" + source + "\t" + destination + "\t" + date);
-					input = socketIn.readLine();
+					output = "";
+					//input = socketIn.readLine();
 				}
-				if(output.contentEquals("BOOK")){
+				else if(output.contentEquals("BOOK")){
+					System.out.println("Send book query.");
 					socketOut.println(output + "\t" + firstName + "\t" + lastName + "\t" + dob);
-					input = socketIn.readLine();
+					output = "";
+					//input = socketIn.readLine();
 				}
+				else{
+					System.out.println("Waiting...");
+					sleep(1000);
+				}
+				
+				
 			}catch (Exception e){
+				
 				System.err.println(e.getMessage());
+				e.printStackTrace(System.err);
 				break;				
 			}
 		}
@@ -86,6 +99,10 @@ public class Client {
 		date = dt;	
 		
 		output = "SEARCH";
+		
+		System.out.println(source + "\n" + destination + "\n" + date + "\n" + output);
+		
+		
 	} 
 	
 	public static void book (String fn, String ln, String db){
@@ -95,8 +112,5 @@ public class Client {
 		
 		output = "BOOK";
 	}
-	public static void main(String[] args) throws IOException {
-		Client client = new Client("localhost", 7766);
-		client.run();
-	}
+
 }
