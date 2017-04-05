@@ -1,7 +1,6 @@
 package BackEnd;
 
 import java.io.BufferedReader;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
@@ -34,7 +33,7 @@ public class Task extends Thread {
 		this.theSocket = theSocket;
 		
 		try{
-			out = new ObjectOutputStream( new FileOutputStream( "fromServer.ser"));
+			out = new ObjectOutputStream( theSocket.getOutputStream());
 			in = new BufferedReader( new InputStreamReader(theSocket.getInputStream()));
 		}
 		catch(IOException e){
@@ -71,14 +70,13 @@ public class Task extends Thread {
 						for(int i = 0;  i < rv.size(); i++){
 							rv.get(i).seeFlight();
 						}
-						
-						//serializeFlights(rv);
+						serializeFlights(rv);
 					}
 					else if(opps[0].contentEquals(BOOK)){
 						System.out.println("PERFROM BOOK");
 						
-						//Ticket rv = theServer.bookTicket(opps[1], opps[2], opps[3]);
-						//serializeTicket(rv);
+						Ticket rv = theServer.bookTicket(Integer.parseInt(opps[1]), opps[2], opps[3], opps[4]);
+						serializeTicket(rv);
 					}
 					else if(opps[0].contentEquals(DELETE)){
 						
@@ -109,6 +107,7 @@ public class Task extends Thread {
 		}
 		
 	}
+	
 	
 	public void serializeFlights(LinkedList<Flight> toSend){
 		try{

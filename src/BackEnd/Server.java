@@ -233,6 +233,7 @@ public class Server{
 	public synchronized LinkedList<Flight> search(String source, String destination, String date){
 		LinkedList<Flight> rv = new LinkedList<Flight>();
 		synchronized (flights) {
+			updateFlightList();
 			for(int i = 0; i < flights.size(); i++){
 				Flight tempFlight = flights.get(i);
 				if(tempFlight.getSource().contentEquals(source) 
@@ -248,7 +249,12 @@ public class Server{
 		return rv;
 	}
 	
-	public synchronized Ticket bookTicket(String firstName, String lastName, String dateOfBirth){
+	public synchronized Ticket bookTicket(int flightNumber, String firstName, String lastName, String dateOfBirth){
+/*		synchronized(flights) {
+			updateFlightList();
+			for()
+			
+		}*/
 		return null;
 	}
 	

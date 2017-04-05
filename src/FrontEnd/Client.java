@@ -1,13 +1,15 @@
 package FrontEnd;
 
-import java.io.BufferedReader;
+import java.io.EOFException;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.LinkedList;
 
 import BackEnd.Flight;
+import BackEnd.Ticket;
 
 public class Client extends Thread {
 	/**
@@ -19,6 +21,7 @@ public class Client extends Thread {
 	/**
 	 * Strings needed for book method
 	 */
+	private static String flightNumber;
 	private static String firstName;
 	private static String lastName;
 	private static String dob;
@@ -27,13 +30,13 @@ public class Client extends Thread {
 	 */
 	private PrintWriter socketOut;
 	private Socket theSocket;
-	private BufferedReader socketIn;
-	private static String input;
+	private ObjectInputStream socketIn;
 	private static  String output;
 	/**
 	 * Returned flights from search
 	 */
 	private LinkedList<Flight> flights;
+	private Ticket theTicket;
 	
 	
 	/**
@@ -44,7 +47,7 @@ public class Client extends Thread {
 	public Client() {
 		try{
 			theSocket = new Socket("localhost", 7766);
-			socketIn = new BufferedReader(new InputStreamReader(theSocket.getInputStream()));
+			socketIn = new ObjectInputStream(theSocket.getInputStream());
 			socketOut = new PrintWriter((theSocket.getOutputStream()), true);
 			
 		}catch (IOException e) {
@@ -52,7 +55,6 @@ public class Client extends Thread {
 		}
 	}
 	public void run() {
-		input = "";
 		output = "";
 		System.out.println("Entered Run state.");
 		while(true) {
@@ -61,13 +63,13 @@ public class Client extends Thread {
 					System.out.println("Send search query.");
 					socketOut.println(output + "\t" + source + "\t" + destination + "\t" + date);
 					output = "";
-					//input = socketIn.readLine();
+					deserializeFlightList();
 				}
 				else if(output.contentEquals("BOOK")){
 					System.out.println("Send book query.");
 					socketOut.println(output + "\t" + firstName + "\t" + lastName + "\t" + dob);
 					output = "";
-					//input = socketIn.readLine();
+					deserializeTicket();
 				}
 				else{
 					System.out.println("Waiting...");
@@ -90,8 +92,49 @@ public class Client extends Thread {
 		}
 	}
 	
-	public void deserialize() {
+	@SuppressWarnings("unchecked")
+	public void deserializeFlightList() {
+		//deserialize flight list
+		try{
+			Object flightIn = socketIn.readObject();
+			flights = new LinkedList<Flight>( (LinkedList<Flight>) flightIn );
+			flights.get(0).seeFlight();
+			
+		}
+		catch(IOException e){
+			System.err.println("Error geting input.");
+			System.err.println(e.getMessage());
+			System.err.println(e.getStackTrace());
+			System.err.println("Program terminating...");
+			System.exit(1);
+		}
+		catch(ClassNotFoundException e){
+			System.err.println("Error reconizing class for deserialization.");
+			System.err.println(e.getMessage());
+			System.err.println("Program terminating...");
+			System.exit(1);
+		}
+	}
+	
+	
+
+	public void deserializeTicket(){
 		//deserialize ticket
+		try{
+			theTicket = (Ticket) socketIn.readObject();
+		}
+		catch(IOException e){
+			System.err.println("Error geting input.");
+			System.err.println(e.getMessage());
+			System.err.println("Program terminating...");
+			System.exit(1);
+		}
+		catch(ClassNotFoundException e){
+			System.err.println("Error reconizing class for deserialization.");
+			System.err.println(e.getMessage());
+			System.err.println("Program terminating...");
+			System.exit(1);
+		}
 	}
 	public static void search (String src, String dst, String dt){
 		source = src;
@@ -105,6 +148,8 @@ public class Client extends Thread {
 		
 	} 
 	
+	// TODO Can you change this so you give me a flight number too, 
+	// cuz I need to know which flight to access to book the ticket
 	public static void book (String fn, String ln, String db){
 		firstName = fn;
 		lastName = ln;
