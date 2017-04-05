@@ -75,10 +75,15 @@ public class Task extends Thread {
 					else if(opps[0].contentEquals(BOOK)){
 						System.out.println("PERFROM BOOK");
 						
+						//Ticket temp = theServer.bookTicket(1, "Tevin", "Schmidt", "02/19/1997");
+						
+						
 						Ticket rv = theServer.bookTicket(Integer.parseInt(opps[1]), opps[2], opps[3], opps[4]);
 						serializeTicket(rv);
 					}
 					else if(opps[0].contentEquals(DELETE)){
+						System.out.println("PERFORM DELETE");
+						
 						
 					}
 					
