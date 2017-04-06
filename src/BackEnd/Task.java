@@ -14,20 +14,45 @@ import java.util.LinkedList;
  * Manager class.
  * 
  * @author Tevin Schmidt
+ * @author James Bews
+ * @since March 31, 2017
  *
  */
 public class Task extends Thread {
 	
+	/**
+	 * The Keywords associated with the strings being read from the client
+	 */
 	private static final String SPLITCHAR = "\\t";
 	private static final String SEARCH = "SEARCH";
 	private static final String BOOK = "BOOK";
 	private static final String DELETE = "DELETE";
 	
+	/**
+	 * The reference to the server
+	 */
 	private Server theServer;
+	
+	/**
+	 * The socket that the client is connected to
+	 */
 	private Socket theSocket;
+	
+	/**
+	 * The input stream from the client
+	 */
 	private BufferedReader in;
+	
+	/**
+	 * The output stream to the client
+	 */
 	private ObjectOutputStream out;
 	
+	/**
+	 * Constructs a task that is linked to the server and a given socket
+	 * @param theServer is the reference to the server
+	 * @param theSocket is the socket for I/O with client
+	 */
 	public Task(Server theServer, Socket theSocket){
 		this.theServer = theServer;
 		this.theSocket = theSocket;
@@ -44,6 +69,10 @@ public class Task extends Thread {
 		}
 	}
 	
+	/**
+	 * Runs the Task Thread. It listens for input 
+	 * from the client and decides what to do
+	 */
 	@Override
 	public void run() {
 		try{
@@ -113,7 +142,10 @@ public class Task extends Thread {
 		
 	}
 	
-	
+	/**
+	 * Serialize the flight list to send to the client
+	 * @param toSend is the LnikeList of flights to send to client
+	 */
 	public void serializeFlights(LinkedList<Flight> toSend){
 		try{
 			out.writeObject(toSend);
@@ -126,6 +158,10 @@ public class Task extends Thread {
 		}
 	}
 	
+	/**
+	 * Serialize a ticket to send to the client
+	 * @param toSend is the Ticket to send to the client
+	 */
 	public void serializeTicket(Ticket toSend){
 		try{
 			out.writeObject(toSend);

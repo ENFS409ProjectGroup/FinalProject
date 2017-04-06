@@ -24,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.awt.event.ActionEvent;
 
@@ -42,8 +43,6 @@ public class Passenger extends Client implements ListSelectionListener{
 	private String firstName;
 	private String lastName;
 	private String DOB;
-	
-	private LinkedList<Flight> flights;
 		
 	private JFrame frame;
 	private JTextField textField;
@@ -168,7 +167,9 @@ public class Passenger extends Client implements ListSelectionListener{
 					return;
 				}
 				search(src, dst, date); //Send strings to client class to send to server
-				getFlights();
+				//flights = new LinkedList<Flight> (getFlights());
+				
+				//flights.get(0).seeFlight();
 
 				
 				//if(flights.size() == null){
@@ -258,6 +259,58 @@ public class Passenger extends Client implements ListSelectionListener{
 				btnSelect.setEnabled(true);
 			}
 		}
+	}
+	public void run() {
+		output = "";
+		System.out.println("Entered Run state.");
+		while(true) {
+			try{
+				if(output.contentEquals("SEARCH")){
+					System.out.println("Send search query.");
+					socketOut.println(output + "\t" + source + "\t" + destination + "\t" + date);
+					output = "";
+					deserializeFlightList();
+					doStuff();
+				}
+				else if(output.contentEquals("BOOK")){
+					System.out.println("Send book query.");
+					socketOut.println(output + "\t" + firstName + "\t" + lastName + "\t" + dob + "\t" + flightNumber);
+					output = "";
+					deserializeTicket();
+				}
+				else if(output.contentEquals("REMOVE")){
+					System.out.println("Send remove ticket query.");
+					socketOut.println(output);
+					//more
+				}
+				else if(output.contentEquals("ADD")){
+					System.out.println("Send Add Flight query.");
+					socketOut.println(output);
+					//more
+				}
+				else{
+					System.out.println("Waiting...");
+					sleep(1000);
+				}
+				
+				
+			}catch (Exception e){
+				
+				System.err.println(e.getMessage());
+				e.printStackTrace(System.err);
+				break;				
+			}
+		}
+		try {
+			socketIn.close();
+			socketOut.close();
+		}catch (IOException e){
+			System.err.println("Error Closing: " + e.getMessage());
+		}
+	}
+	
+	public void doStuff(){
+		flights.get(0).seeFlight();
 	}
 			
 }

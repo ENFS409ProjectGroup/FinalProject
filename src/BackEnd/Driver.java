@@ -7,20 +7,48 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.LinkedList;
 
-
+/**
+ * This class is the driver that connects the server to the data base. Provides basic 
+ * Functionality in which a new dataBase can be constructed, and new tables when these
+ * are absent. It also can return the whole flight list and whole ticket list
+ * 
+ * @author Tevin Schmidt
+ * @author James Bews
+ * @since March 31, 2017
+ *
+ */
 public class Driver {
-	private Connection connection;
-	private Statement statement;
-	private ResultSet resultSet;
-	private ResultSet resultSet2;
 	
+	/**
+	 * The connection to the database
+	 */
+	private Connection connection;
+	
+	/**
+	 * The statement linked to the database
+	 */
+	private Statement statement;
+	
+	/**
+	 * The ResultSet produced by a call to the database
+	 */
+	private ResultSet resultSet;
+
+	
+	/**
+	 * The following are static string used in initial setup of the database connection
+	 */
 	private static String jdbcDriver =  "com.mysql.jdbc.Driver";
-	private static String dbAddress = "jdbc:mysql://localhost:7766/";
+	private static String dbAddress = "jdbc:mysql://localhost:3306/";
 	private static String SSL = "/?autoReconnect=true&useSSL=false";
 	private static String theDB = "AirLineCatalogue";
-	private static String userName = "root";
-	private static String password = "1993MF1967";
+	private static String userName = "Client";
+	private static String password = "Client";
 	
+	
+	/**
+	 * The following are static strings used for the construction of the table "flights"
+	 */
 	private static final String FLIGHTS_TABLE_NAME = "flights";
 	private static final String FLIGHTS_COLUMN_FLIGHTNUMBER = "flightNumber";
 	private static final String FLIGHTS_COLUMN_DESTINATION = "destination";
@@ -32,7 +60,9 @@ public class Driver {
 	private static final String FLIGHTS_COLUMN_PRICE = "price";
 	private static final String FLIGHTS_COLUMN_DATE = "date";
 	
-		
+	/**
+	 * The following are static strings used for the construction of the table "tickets"
+	 */
 	private static final String TICKETS_TABLE_NAME = "tickets";
 	private static final String TICKETS_COLUMN_REFNUM = "refNum";
 	private static final String TICKETS_COLUMN_FLIGHTNUMBER = "flightNumber";
@@ -47,7 +77,10 @@ public class Driver {
 	private static final String TICKETS_COLUMN_DATE = "date";
 	private static final String TICKETS_COLUMN_AVALIABLE = "available";
 	
-	
+	/**
+	 * Constructs a default Driver in which the connection is established and the database
+	 * is initialized if it has not been created yet
+	 */
 	public Driver(){
 		try{
 			Class.forName(jdbcDriver);
@@ -73,30 +106,58 @@ public class Driver {
 		}
 	}
 	
+	/**
+	 * Gets the Connection to the dataBase
+	 * @return the Connection to the database
+	 */
 	public Connection getCon(){
 		return connection;
 	}
 	
+	/**
+	 * Gets the Statement from the driver
+	 * @return the Statement to be used
+	 */
 	public Statement getState(){
 		return statement;
 	}
 	
+	/**
+	 * Gets the ResultSet produced from a database query
+	 * @return the ResultSet of a database query
+	 */
 	public ResultSet getResult(){
 		return resultSet;
 	}
 	
+	/**
+	 * Sets the Connection of the driver
+	 * @param connection is the Connection to be assigned to the driver
+	 */
 	public void setCon(Connection connection){
 		this.connection = connection;
 	}
 	
+	/**
+	 * Sets the Statement of the driver
+	 * @param statement is the Statement to be assigned to the driver
+	 */
 	public void setState(Statement statement){
 		this.statement = statement;
 	}
 	
+	/**
+	 * Sets the resultSet of the driver
+	 * @param resultSet is the ResultSet to be assigned to the driver
+	 */
 	public void setResult(ResultSet resultSet){
 		this.resultSet = resultSet;
 	}
 
+	/**
+	 * Initializes the database by creating new tables of "flight" and "tickets"
+	 * if these table do not already exist
+	 */
 	public void initialize() {
 		
 		String query1 = new String("CREATE TABLE IF NOT EXISTS " + FLIGHTS_TABLE_NAME + " (" +
@@ -137,6 +198,10 @@ public class Driver {
 		
 	}
 	
+	/**
+	 * Produces a LinkedList of type Flight by making query to the database
+	 * @return the LinkedList of type Flight containing all flights
+	 */
 	public LinkedList<Flight> returnFlights(){
 		LinkedList<Flight> rv = new LinkedList<Flight>();
 		try{
@@ -173,6 +238,11 @@ public class Driver {
 		return rv;
 	}
 	
+	/**
+	 * Produces a LinkedList of type Ticket by making a query to the database
+	 * @param flightNumber is the flightNumber of the desired tickets
+	 * @return a LinkedList containing all tickets for the desired flight
+	 */
 	public LinkedList<Ticket> returnTickets(int flightNumber){
 		LinkedList<Ticket> rv = new LinkedList<Ticket>();
 		try{

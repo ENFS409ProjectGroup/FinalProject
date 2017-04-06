@@ -14,21 +14,42 @@ import java.util.LinkedList;
  * It receives information and decides what action to take.
  * 
  * @author Tevin Schmidt
+ * @author James Bews
  *
  */
 public class Server{
 	
-	static final int PORTNUM = 3306;
+	/**
+	 * The port number for the sockets
+	 */
+	static final int PORTNUM = 7766;
 	
+	/**
+	 * The driver to connect to the database with
+	 */
 	private Driver driver;
+	
+	/**
+	 * The socket for the server
+	 */
 	private ServerSocket serverSocket;
+	
+	/**
+	 * The socket of the current client being handled
+	 */
 	private Socket socket;
 	
+	/**
+	 * The List of all the flights 
+	 */
 	private LinkedList<Flight> flights;
 	
 
 
-	
+	/**
+	 * Constructs a Server with able to handle the given number of threads
+	 * @param numThreads is the desired number of threads 
+	 */
 	public Server(int numThreads){
 		driver = new Driver();
 		driver.initialize();
@@ -38,6 +59,9 @@ public class Server{
 		
 	}
 	
+	/**
+	 * Setup of the ThreadPool to be used to manage the clients
+	 */
 	public void run(){
 		ThreadPool pool = new ThreadPool(6);
 		
@@ -70,18 +94,18 @@ public class Server{
 		}
 	}
 	
-	public void serialize(){
-		
-	}
-	
-	public void deserialize(){
-		
-	}
-	
+	/**
+	 * Gets the driver so it can be used to connect to the database
+	 * @return the driver for the server
+	 */
 	public Driver getDriver(){
 		return this.driver;
 	}
 	
+	/**
+	 * Adds all flights from the given text file
+	 * @param inputName is the name of the inputFile
+	 */
 	public void addFlightList(String inputName){
 		
 		try{
@@ -118,6 +142,10 @@ public class Server{
 		
 	}
 	
+	/**
+	 * This inserts The given list of flights into the database
+	 * @param flights is the LinkedList of flights to be added
+	 */
 	public void insertFlights(LinkedList<Flight> flights){
 		for(int i = 0; i < flights.size(); i++){
 			String [] toInsert = new String[8];
@@ -149,6 +177,11 @@ public class Server{
 		}
 	}
 	
+	/**
+	 * Inserts the given LinkedList of tickets into the database
+	 * @param tickets is the Linked list of tickets
+	 * @param flightNumber is the flight number to be associated with them
+	 */
 	public void insertTickets(LinkedList<Ticket> tickets, int flightNumber){
 		for(int i = 0, j = 1; i < tickets.size(); i++, j++){
 			String [] toInsert = new String[8];
@@ -179,6 +212,10 @@ public class Server{
 		}
 	}
 	
+	/**
+	 * Inserts a single flight into the database
+	 * @param toInsert is the string containing flight info to insert into the database
+	 */
 	public void insertFlight(String[] toInsert){
 		String sqlOut = "insert into flights"
 				+ " (flightNumber, destination, source, departureTime, duration, totalSeats, seatAvailable, price, date)"
@@ -198,6 +235,10 @@ public class Server{
 		}
 	}
 	
+	/**
+	 * Deletes a single flight from the database
+	 * @param toDelete is the flightNumber of the flight to delete
+	 */
 	public void deleteFlight(String toDelete){
 		String sqlOut = "delete from flights where flightNumber='" + Integer.parseInt(toDelete) + "'";
 		
@@ -212,6 +253,10 @@ public class Server{
 		}
 	}
 	
+	/**
+	 * Deletes tickets associated with a flight 
+	 * @param toDelete is the flight number of the tickets to delete
+	 */
 	public void deleteFlightTickets(String toDelete){
 		String sqlOut = "delete from tickets where flightNumber='" + Integer.parseInt(toDelete) + "'";
 		
@@ -226,12 +271,22 @@ public class Server{
 		}
 	}
 	
+	/**
+	 * This updates the LinkedList of flights from the data base
+	 */
 	public synchronized void updateFlightList(){
 		synchronized (flights){	
 			flights = driver.returnFlights();
 		}
 	}
 	
+	/**
+	 * Searches for flights based on the given parameters
+	 * @param source is the source of the flight
+	 * @param destination is the destination of the flight
+	 * @param date is the date of the flight
+	 * @return is the LinkedList containing all relevent flights
+	 */
 	public synchronized LinkedList<Flight> search(String source, String destination, String date){
 		LinkedList<Flight> rv = new LinkedList<Flight>();
 		synchronized (flights) {
@@ -252,6 +307,14 @@ public class Server{
 		return rv;
 	}
 	
+	/**
+	 * Books a ticket based of off the given information
+	 * @param flightNumber is the flight number of the flight
+	 * @param firstName is the first name of the passenger
+	 * @param lastName is the last name of the passenger
+	 * @param dateOfBirth is the date of birth of the passenger
+	 * @return is the ticket to send to the client
+	 */
 	public synchronized Ticket bookTicket(int flightNumber, String firstName, String lastName, String dateOfBirth){
 		synchronized(flights) {
 			updateFlightList();
@@ -276,7 +339,15 @@ public class Server{
 		return null;
 	}
 	
-	//have to figure out how to decrement avaliavleSeats
+	/**
+	 * Changes the status of the ticket to not available, and puts the passenger
+	 * information into the ticket
+	 * @param seatNum is the seat number of the ticket
+	 * @param flightNumber is the flight number of the ticket
+	 * @param firstName is the first name of the passenger
+	 * @param lastName is the last name of the passenger
+	 * @param dateOfBirth is the date of birth of the passenger
+	 */
 	public synchronized void updateTicketInDB(int seatNum, int flightNumber, String firstName, String lastName, String dateOfBirth){
 		Flight tempFlight = searchFlights(flightNumber);
 		int seatsLeft = tempFlight.getSeatsAvailable();
@@ -303,7 +374,11 @@ public class Server{
 		}
 	}
 	
-	//have to figure out how to increment availableSeats
+	/**
+	 * Deletes a valid ticket and updates its status to available
+	 * @param flightNumber is the flight number of the ticket
+	 * @param seatNum is the seat number of the ticket
+	 */
 	public synchronized void deleteTicket(int flightNumber, int seatNum){	
 		Flight tempFlight = searchFlights(flightNumber);
 		int seatsLeft = tempFlight.getSeatsAvailable();
@@ -330,6 +405,11 @@ public class Server{
 		}
 	}
 	
+	/**
+	 * Searches for a particular flight in the LinkedList
+	 * @param flightNumber is the number of the flight to find
+	 * @return is the Flight with the given number 
+	 */
 	private synchronized Flight searchFlights(int flightNumber){
 		synchronized (flights){
 			for(int i = 0; i < flights.size(); i++){
@@ -344,6 +424,10 @@ public class Server{
 		}
 	}
 	
+	/**
+	 * Sets up the server on startup
+	 * @param args is the command line arguments
+	 */
 	public static void main(String []args){
 		Server theServer = new Server(10);
 		if(args.length == 1){
