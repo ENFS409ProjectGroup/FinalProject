@@ -22,6 +22,8 @@ public class Client extends Thread {
 	protected static String departTime;
 	protected static String price;
 	protected static int flightNumber;
+	protected static String totalSeats;	
+	protected static int seatNumber;
 	/**
 	 * Strings needed for book method
 	 */
@@ -121,17 +123,19 @@ public class Client extends Thread {
 		output = "BOOK";
 	}
 	
-	public static void removeTicket(String tckt){
-		
+	public static void removeTicket(int fn, int sn){
+		flightNumber = fn;
+		seatNumber = sn;	
 		
 		output = "REMOVE";
 	}
-	public static void addFlight(String dst, String src, String dprt, String dur, String prc){
+	public static void addFlight(String dst, String src, String dprt, String dur, String prc, String ts){
 		destination = dst;
 		source = src;
 		departTime = dprt;
 		duration = dur;
 		price = prc;
+		totalSeats = ts;
 		
 		output = "ADD";
 	}

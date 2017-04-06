@@ -32,8 +32,10 @@ import BackEnd.Flight;
 import BackEnd.Ticket;
 
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.awt.event.ActionEvent;
@@ -50,6 +52,7 @@ public class Admin extends Client implements ListSelectionListener {
 	private String departTime;
 	private int flightNumber;
 	private String price;
+	private String totalSeats;
 	
 	private String firstName;
 	private String lastName;
@@ -177,6 +180,7 @@ public class Admin extends Client implements ListSelectionListener {
 				
 				//ERROR checking to make sure all boxes are populated
 				if(textField.getText().equals("") || textField_1.getText().equals("") || textField_2.getText().equals("")){
+					UIManager.put("OptionPane.okButtonText", "OK");
 					JOptionPane.showMessageDialog(null, "Please make sure all fields are specified.");
 					return;
 				}
@@ -229,8 +233,8 @@ public class Admin extends Client implements ListSelectionListener {
 		/**
 		 * Displays flights based on search query
 		 */
-		JButton btnNewButton = new JButton("View Flight Details");
-		btnNewButton.setEnabled(true);
+		btnNewButton = new JButton("View Flight Details");
+		btnNewButton.setEnabled(false);
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
@@ -277,6 +281,9 @@ public class Admin extends Client implements ListSelectionListener {
 
 						UIManager.put("OptionPane.okButtonText", "OK");
 						JOptionPane.showMessageDialog(null, "Your flight has been booked! Your flight ticket is being printed...");
+						
+						printTicket(theTicket);
+						
 					}
 				}
 			}
@@ -291,9 +298,8 @@ public class Admin extends Client implements ListSelectionListener {
 				String file;
 				file = JOptionPane.showInputDialog("Enter the file name:");
 				
+				addFlightList(file);
 				
-				//call method to read file
-				//send contents to database
 			}
 		});
 		btnNewButton_1.setFont(new Font("Tahoma", Font.BOLD, 11));
@@ -314,6 +320,7 @@ public class Admin extends Client implements ListSelectionListener {
 				JTextField dprt = new JTextField(10);
 				JTextField length = new JTextField(10);		
 				JTextField prce = new JTextField(10);
+				JTextField total = new JTextField(10);
 				
 				JPanel panel = new JPanel(new BorderLayout(3,3));
 				panel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -334,6 +341,8 @@ public class Admin extends Client implements ListSelectionListener {
 				controls.add(length);
 				labels.add(new JLabel("Price: "));
 				controls.add(prce);
+				labels.add(new JLabel("Total Seats: "));
+				controls.add(total);
 				
 				int value = JOptionPane.showConfirmDialog(frame, panel, "Add Flight", JOptionPane.OK_CANCEL_OPTION);
 				if (value == JOptionPane.OK_OPTION)
@@ -343,8 +352,10 @@ public class Admin extends Client implements ListSelectionListener {
 					duration = length.getText();
 					departTime = dprt.getText();
 					price = prce.getText();
+					totalSeats = total.getText();
 					
-					addFlight(dst, src, departTime, duration, price); //Add ticket to database
+					
+					addFlight(dst, src, departTime, duration, price, totalSeats); //Add ticket to database
 					
 				}
 				
@@ -372,8 +383,12 @@ public class Admin extends Client implements ListSelectionListener {
 		btnCancelTicket.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int index = list.getSelectedIndex();
+				Ticket tmp = tickets.get(index);
 				
-				//REmove ticket from data base
+				//Remove ticket from database
+				//flightNumber = tmp.getFlightNumber();		
+				seatNumber = tmp.getSeatNumber();
+				removeTicket(flightNumber, seatNumber);
 				
 				tickets.remove(index);
 				listModel.removeElementAt(index);
@@ -391,9 +406,14 @@ public class Admin extends Client implements ListSelectionListener {
 			public void actionPerformed(ActionEvent e) {
 				int index = list.getSelectedIndex();
 				
-				//Ticket tick = tickets.get(index);
+				Ticket tick = tickets.get(index);
+				String temp = "Passenger Name: " + tick.getFirstName() + " " + tick.getLastName() + "   Date of Birth: " + tick.getDateOfBirth() + "   Destination: " + tick.getDestination() +
+											"   From: " + tick.getSource() + "   Flight Number: " + tick.getSeatNumber() + "   Seat Number: " + tick.getSeatNumber();
 				
-				JOptionPane.showMessageDialog(null, "Ticket Details");
+				UIManager.put("OptionPane.okButtonText", "OK");
+				
+				//Display ticket info
+				int val = JOptionPane.showOptionDialog(null, temp, "Ticket Information", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
 			}
 		});
 		btnViewTicket.setFont(new Font("Tahoma", Font.BOLD, 11));
@@ -411,6 +431,7 @@ public class Admin extends Client implements ListSelectionListener {
 				textField_1.setText("");
 				textField_2.setText("");
 				
+				list.setSelectedIndex(-1);
 				listModel.clear();
 			}
 		});
@@ -421,10 +442,17 @@ public class Admin extends Client implements ListSelectionListener {
 	
 	/**
 	 * List Selection method
-	 */
-	
+	 */	
 	public void valueChanged(ListSelectionEvent e) {
 
+		if (e.getValueIsAdjusting() == false) {
+			if(list.getSelectedIndex() == -1) {
+				btnNewButton.setEnabled(false);
+			}else{
+				btnNewButton.setEnabled(true);
+			}
+		}
+		
 	}
 		/**
 		 * Displays search results in the scroll pane
@@ -491,6 +519,45 @@ public class Admin extends Client implements ListSelectionListener {
 			}
 		}
 		
+		
+		public void addFlightList(String inputName){
+			
+			try{
+				FileReader reader = new FileReader(inputName + ".txt");
+				BufferedReader read = new BufferedReader(reader);
+				String current = read.readLine();
+				
+				while(true){
+					if(current == null){
+						break;
+					}
+					
+					String[] values = current.split(";");
+					dst = values[0];
+					src = values[1];
+					departTime = values[2];
+					duration = values[3];
+					totalSeats = values[4];
+					price = values[6];
+					date = values[7];
+					
+					addFlight(dst, src, departTime, duration, price, totalSeats);		
+										
+					current = read.readLine();
+					
+				}				
+				read.close();
+				
+			}
+			catch(IOException e){
+				System.err.println("Problem reading from file.");
+				System.err.println(e.getMessage());
+				System.err.println("Program terminating.");
+				System.exit(1);
+			}
+			
+			
+		}
 		 /**
 		  * After a ticket is booked, ticket is printed to file
 		  * @param ticket

@@ -227,6 +227,7 @@ public class Passenger extends Client implements ListSelectionListener{
 
 						UIManager.put("OptionPane.okButtonText", "OK");
 						JOptionPane.showMessageDialog(null, "Your flight has been booked! Your flight ticket is being printed...");
+						printTicket(theTicket);
 					}
 				}
 			}
