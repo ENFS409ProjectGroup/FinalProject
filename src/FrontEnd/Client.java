@@ -15,32 +15,33 @@ public class Client extends Thread {
 	/**
 	 * Strings needed for search method
 	 */
-	private static String source;
-	private static String destination;
-	private static String date;
-	private static String duration;
-	private static String departTime;
-	private static String price;
-	private static String flightNumber;
+	protected static String source;
+	protected static String destination;
+	protected static String date;
+	protected static String duration;
+	protected static String departTime;
+	protected static String price;
+	protected static int flightNumber;
 	/**
 	 * Strings needed for book method
 	 */
 	
-	private static String firstName;
-	private static String lastName;
-	private static String dob;
+	protected static String firstName;
+	protected static String lastName;
+	protected static String dob;
 	/**
 	 * Socket variables	
 	 */
-	private PrintWriter socketOut;
-	private Socket theSocket;
-	private ObjectInputStream socketIn;
-	private static  String output;
+	protected PrintWriter socketOut;
+	protected Socket theSocket;
+	protected ObjectInputStream socketIn;
+	protected static  String output;
 	/**
 	 * Returned flights from search
 	 */
-	LinkedList<Flight> flights;
-	private Ticket theTicket;
+	protected static LinkedList<Flight> flights;
+	protected static LinkedList<Ticket> tickets;
+	protected Ticket theTicket;
 	
 	
 	/**
@@ -58,60 +59,13 @@ public class Client extends Thread {
 			System.err.println(e.getStackTrace());
 		}
 	}
-	public void run() {
-		output = "";
-		System.out.println("Entered Run state.");
-		while(true) {
-			try{
-				if(output.contentEquals("SEARCH")){
-					System.out.println("Send search query.");
-					socketOut.println(output + "\t" + source + "\t" + destination + "\t" + date);
-					output = "";
-					deserializeFlightList();
-				}
-				else if(output.contentEquals("BOOK")){
-					System.out.println("Send book query.");
-					socketOut.println(output + "\t" + firstName + "\t" + lastName + "\t" + dob + "\t" + flightNumber);
-					output = "";
-					deserializeTicket();
-				}
-				else if(output.contentEquals("REMOVE")){
-					System.out.println("Send remove ticket query.");
-					socketOut.println(output);
-					//more
-				}
-				else if(output.contentEquals("ADD")){
-					System.out.println("Send Add Flight query.");
-					socketOut.println(output);
-					//more
-				}
-				else{
-					System.out.println("Waiting...");
-					sleep(1000);
-				}
-				
-				
-			}catch (Exception e){
-				
-				System.err.println(e.getMessage());
-				e.printStackTrace(System.err);
-				break;				
-			}
-		}
-		try {
-			socketIn.close();
-			socketOut.close();
-		}catch (IOException e){
-			System.err.println("Error Closing: " + e.getMessage());
-		}
-	}
 	
 	@SuppressWarnings("unchecked")
 	public void deserializeFlightList() {
 		try{
 			Object flightIn = socketIn.readObject();
 			flights = new LinkedList<Flight>( (LinkedList<Flight>) flightIn );
-			//flights.get(0).seeFlight();
+			
 			
 		}
 		catch(IOException e){
@@ -149,24 +103,16 @@ public class Client extends Thread {
 		}
 	}
 	
-	public LinkedList<Flight> getFlights(){
-		return flights;
-	}
 	public static void search (String src, String dst, String dt){
 		source = src;
 		destination = dst;
 		date = dt;	
 		
-		output = "SEARCH";
-		
-		System.out.println(source + "\n" + destination + "\n" + date + "\n" + output);
-		
+		output = "SEARCH";	
 		
 	} 
 	
-	// TODO Can you change this so you give me a flight number too, 
-	// cuz I need to know which flight to access to book the ticket
-	public static void book (String fn, String ln, String db, String fnum){
+	public static void book (String fn, String ln, String db, int fnum){
 		firstName = fn;
 		lastName = ln;
 		dob = db;
@@ -176,7 +122,7 @@ public class Client extends Thread {
 	}
 	
 	public static void removeTicket(String tckt){
-		//Will remove string??
+		
 		
 		output = "REMOVE";
 	}

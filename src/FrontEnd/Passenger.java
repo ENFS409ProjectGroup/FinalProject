@@ -11,6 +11,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import BackEnd.Flight;
+import BackEnd.Ticket;
 
 import java.awt.Font;
 import java.awt.SystemColor;
@@ -24,6 +25,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.awt.event.ActionEvent;
 
@@ -42,8 +47,9 @@ public class Passenger extends Client implements ListSelectionListener{
 	private String firstName;
 	private String lastName;
 	private String DOB;
-	
-	private LinkedList<Flight> flights;
+	private int flightnumber;
+
+	private LinkedList<Flight> flight;
 		
 	private JFrame frame;
 	private JTextField textField;
@@ -85,6 +91,7 @@ public class Passenger extends Client implements ListSelectionListener{
 		
 		//Display header
 		JTextPane txtpnWelcomeToAirline = new JTextPane();
+		txtpnWelcomeToAirline.setEditable(false);
 		txtpnWelcomeToAirline.setBackground(SystemColor.menu);
 		txtpnWelcomeToAirline.setFont(new Font("Tahoma", Font.BOLD, 14));
 		txtpnWelcomeToAirline.setText("Welcome to Airline Registration System");
@@ -93,6 +100,7 @@ public class Passenger extends Client implements ListSelectionListener{
 		
 		//Display title
 		JTextPane txtpnBookAFlight = new JTextPane();
+		txtpnBookAFlight.setEditable(false);
 		txtpnBookAFlight.setFont(new Font("Tahoma", Font.BOLD, 12));
 		txtpnBookAFlight.setBackground(SystemColor.menu);
 		txtpnBookAFlight.setText("Book a flight:");
@@ -101,6 +109,7 @@ public class Passenger extends Client implements ListSelectionListener{
 		
 		// Display "From:"
 		JTextPane txtpnDeparture = new JTextPane();
+		txtpnDeparture.setEditable(false);
 		txtpnDeparture.setForeground(new Color(0, 0, 0));
 		txtpnDeparture.setBackground(SystemColor.menu);
 		txtpnDeparture.setFont(new Font("Tahoma", Font.BOLD, 12));
@@ -110,6 +119,7 @@ public class Passenger extends Client implements ListSelectionListener{
 		
 		//Display "Destination:"
 		JTextPane txtpnTo = new JTextPane();
+		txtpnTo.setEditable(false);
 		txtpnTo.setBackground(SystemColor.menu);
 		txtpnTo.setFont(new Font("Tahoma", Font.BOLD, 12));
 		txtpnTo.setText("Destination:");
@@ -130,6 +140,7 @@ public class Passenger extends Client implements ListSelectionListener{
 		
 		//Display "Date:"
 		JTextPane txtpnDate = new JTextPane();
+		txtpnDate.setEditable(false);
 		txtpnDate.setBackground(SystemColor.menu);
 		txtpnDate.setFont(new Font("Tahoma", Font.BOLD, 12));
 		txtpnDate.setText("Date:");
@@ -168,19 +179,6 @@ public class Passenger extends Client implements ListSelectionListener{
 					return;
 				}
 				search(src, dst, date); //Send strings to client class to send to server
-				getFlights();
-
-				
-				//if(flights.size() == null){
-					//JOptionPane.showMessageDialog(null, "Sorry we do not have a flight that matches your search");
-				//}
-				//System.out.println(flights.get(0).getSource() + "is here!!!!");
-				
-				//for(int i = 0; i < flights.size(); i++){
-					//listModel.addElement(flights.get(i));
-				//} 
-					
-				//listModel.addElement(test); //Display results from search in window HERE
 			}
 		});
 		btnGetFlights.setFont(new Font("Tahoma", Font.BOLD, 11));
@@ -193,14 +191,13 @@ public class Passenger extends Client implements ListSelectionListener{
 		btnSelect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int index = list.getSelectedIndex();
-				String value = (String) listModel.getElementAt(index);
-				System.out.println("Element at:" + value);
-				
+				Flight value = flights.get(index);
+				String temp = "Flight Number: " + value.getFlightNumber() + "  Date: " + value.getDate() + "  Time: " + value.getDepartureTime() + "  From: " + value.getSource() + "  To: " + value.getDestination() + "   Flight Length: " + value.getDuration()
+										+ "  Seats Left: " + value.getSeatsAvailable() + "  Price: " + value.getPrice();
 				UIManager.put("OptionPane.okButtonText", "Book Flight");
 				
-				//Display additional information from flight HERE
-				
-				int val = JOptionPane.showOptionDialog(null, value , "Flight Booking", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
+				//Display additional information from flight 				
+				int val = JOptionPane.showOptionDialog(null, temp, "Flight Booking", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
 				if(val == JOptionPane.OK_OPTION){
 					JPanel panel = new JPanel();
 					JTextField field1 = new JTextField(10);
@@ -217,13 +214,16 @@ public class Passenger extends Client implements ListSelectionListener{
 						firstName = field1.getText();
 						lastName = field2.getText();
 						DOB = field3.getText();
+						flightnumber = value.getFlightNumber();
+						
 						//ERROR check if boxes are empty
 						if(field1.getText().equals("") || field2.getText().equals("") || field3.getText().equals("")){
 							UIManager.put("OptionPane.okButtonText", "OK");
 							JOptionPane.showMessageDialog(null, "Please try again. Make sure all fields are specified."); 
 							return;
 						}
-						//book(firstName, lastName, DOB); //Send booking info to server
+						
+						book(firstName, lastName, DOB, flightnumber); //Send booking info to server
 
 						UIManager.put("OptionPane.okButtonText", "OK");
 						JOptionPane.showMessageDialog(null, "Your flight has been booked! Your flight ticket is being printed...");
@@ -249,7 +249,9 @@ public class Passenger extends Client implements ListSelectionListener{
 		clear.setBounds(330, 111, 93, 23);
 		frame.getContentPane().add(clear);
 	}
-
+	/**
+	 * List selection method
+	 */
 	public void valueChanged(ListSelectionEvent e) {
 		if (e.getValueIsAdjusting() == false) {
 			if(list.getSelectedIndex() == -1) {
@@ -257,6 +259,117 @@ public class Passenger extends Client implements ListSelectionListener{
 			}else{
 				btnSelect.setEnabled(true);
 			}
+		}
+	}
+	/**
+	 * Displays search results in scroll pane
+	 */
+	public void updateFlights() {
+		if(flights.size() == 0){
+			listModel.addElement("Sorry, we do not offer a flight with your specific search results.");
+			return;
+		}
+		for(int i = 0; i < flights.size(); i++){
+			listModel.addElement(flights.get(i).getDepartureTime() + "    " + flights.get(i).getSource() + "    " + flights.get(i).getDestination());
+		}
+	}
+	/**
+	 * Run method
+	 */
+	public void run() {
+		output = "";
+		System.out.println("Entered Run state.");
+		while(true) {
+			try{
+				if(output.contentEquals("SEARCH")){
+					System.out.println("Send search query.");
+					socketOut.println(output + "\t" + source + "\t" + destination + "\t" + date);
+					output = "";
+					deserializeFlightList();
+					
+					updateFlights();
+				}
+				else if(output.contentEquals("BOOK")){
+					System.out.println("Send book query.");
+					socketOut.println(output + "\t" + firstName + "\t" + lastName + "\t" + dob + "\t" + flightNumber);
+					output = "";
+					deserializeTicket();
+				}
+				else if(output.contentEquals("REMOVE")){
+					System.out.println("Send remove ticket query.");
+					socketOut.println(output);
+					//more
+				}
+				else if(output.contentEquals("ADD")){
+					System.out.println("Send Add Flight query.");
+					socketOut.println(output);
+					//more
+				}
+				else{
+					System.out.println("Waiting...");
+					sleep(1000);
+				}
+				
+				
+			}catch (Exception e){
+				
+				System.err.println(e.getMessage());
+				e.printStackTrace(System.err);
+				break;				
+			}
+		}
+		try {
+			socketIn.close();
+			socketOut.close();
+		}catch (IOException e){
+			System.err.println("Error Closing: " + e.getMessage());
+		}
+	}
+	
+	 /**
+	  * After a ticket is booked, ticket is printed to file
+	  * @param ticket
+	  */
+	public static void printTicket(Ticket ticket){
+		
+		try{
+			
+			File fout = new File("AirlineTicket"); //Check if file exists
+			if(!fout.exists()){
+				fout.createNewFile();
+			}
+			FileWriter fw = new FileWriter(fout, true);
+			BufferedWriter bw = new BufferedWriter(fw);
+			
+			bw.write("===== Airline Ticket Confirmation =====");//Print header
+			bw.newLine();
+			bw.newLine();
+			bw.newLine();
+			bw.write("Thank you for booking with us!!");
+			bw.newLine();
+			bw.newLine();
+			bw.write("Flight Itinerary:");
+			bw.newLine();
+			bw.newLine();
+			bw.write("Passenger: " + ticket.getLastName() + ",  " + ticket.getFirstName());
+			bw.newLine();
+			bw.write("Date of Birth: " + ticket.getDateOfBirth());
+			bw.newLine();
+			bw.write("Flight Deatils:");
+			bw.newLine();
+			bw.newLine();
+			bw.write("Departure Time: " + ticket.getDepartureTime() + "  From: " + ticket.getSource() + "  To: " + ticket.getDestination());
+			bw.newLine();
+			bw.write("Flight Duration: " + ticket.getDuration());
+			bw.newLine();
+			bw.write("Seat Number: " + ticket.getSeatNumber());
+			bw.newLine();
+			bw.newLine();
+			bw.write("Enjoy your flight!!");
+			bw.close();
+			
+		}catch (IOException e){
+			System.err.println("Error writing to file" + e.getMessage());
 		}
 	}
 			
