@@ -42,8 +42,8 @@ public class Driver {
 	private static String dbAddress = "jdbc:mysql://localhost:3306/";
 	private static String SSL = "/?autoReconnect=true&useSSL=false";
 	private static String theDB = "AirLineCatalogue";
-	private static String userName = "Client";
-	private static String password = "Client";
+	private static String userName = "root";
+	private static String password = "1993MF1967";
 	
 	
 	/**
