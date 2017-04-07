@@ -80,6 +80,7 @@ public class ThreadPool {
 				}
 				catch(RuntimeException e){
 					System.err.println("Thread pool is interrupted due to an issue: " + e.getMessage());
+					System.err.println(e.getStackTrace());
 				}
 			}
 			

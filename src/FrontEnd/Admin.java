@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.awt.event.ActionEvent;
 
 public class Admin extends Client implements ListSelectionListener {
@@ -321,6 +322,7 @@ public class Admin extends Client implements ListSelectionListener {
 				JTextField length = new JTextField(10);		
 				JTextField prce = new JTextField(10);
 				JTextField total = new JTextField(10);
+				JTextField theDate = new JTextField(10);
 				
 				JPanel panel = new JPanel(new BorderLayout(3,3));
 				panel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -343,6 +345,8 @@ public class Admin extends Client implements ListSelectionListener {
 				controls.add(prce);
 				labels.add(new JLabel("Total Seats: "));
 				controls.add(total);
+				labels.add(new JLabel("Date: "));
+				controls.add(theDate);
 				
 				int value = JOptionPane.showConfirmDialog(frame, panel, "Add Flight", JOptionPane.OK_CANCEL_OPTION);
 				if (value == JOptionPane.OK_OPTION)
@@ -353,9 +357,10 @@ public class Admin extends Client implements ListSelectionListener {
 					departTime = dprt.getText();
 					price = prce.getText();
 					totalSeats = total.getText();
+					date = theDate.getText();
 					
-					
-					addFlight(dst, src, departTime, duration, price, totalSeats); //Add ticket to database
+					//TODO change to make compatible
+					addFlight(dst, src, departTime, duration, price, totalSeats, date); //Add ticket to database
 					
 				}
 				
@@ -484,19 +489,27 @@ public class Admin extends Client implements ListSelectionListener {
 					}
 					else if(output.contentEquals("BOOK")){
 						System.out.println("Send book query.");
-						socketOut.println(output + "\t" + firstName + "\t" + lastName + "\t" + dob + "\t" + flightNumber);
+						socketOut.println(output + "\t" +  flightNumber + "\t" + firstName + "\t" + lastName + "\t" + dob );
 						output = "";
 						deserializeTicket();
 					}
 					else if(output.contentEquals("REMOVE")){
 						System.out.println("Send remove ticket query.");
-						socketOut.println(output);
+						socketOut.println(output + "\t" + flightNumber + "\t" + seatNumber);
+						output = "";
 						//more
 					}
 					else if(output.contentEquals("ADD")){
 						System.out.println("Send Add Flight query.");
-						socketOut.println(output);
+						socketOut.println(output + "\t" + destination + "\t" + source + "\t" + departTime + "\t" + duration + "\t" + totalSeats + "\t" + totalSeats + "\t" + price + "\t" + date);
+						output = "";
+						
 						//more
+					}
+					else if(output.contentEquals("FILE")){
+						System.out.println("Send File of flights.");
+						socketOut.println(output);
+						output = "";
 					}
 					else{
 						System.out.println("Waiting...");
@@ -526,26 +539,34 @@ public class Admin extends Client implements ListSelectionListener {
 				FileReader reader = new FileReader(inputName + ".txt");
 				BufferedReader read = new BufferedReader(reader);
 				String current = read.readLine();
+				fromFile = new LinkedList<Flight>();
 				
 				while(true){
 					if(current == null){
 						break;
 					}
 					
+					Flight temp = new Flight();
 					String[] values = current.split(";");
-					dst = values[0];
-					src = values[1];
-					departTime = values[2];
-					duration = values[3];
-					totalSeats = values[4];
-					price = values[6];
-					date = values[7];
+					temp.setDestination(values[0]);
+					temp.setSource(values[1]);
+					temp.setDepartureTime(values[2]);
+					temp.setDuration(values[3]);
+					temp.setTotalSeats(Integer.parseInt(values[4]));
+					temp.setAvailable(Integer.parseInt(values[4]));
+					temp.setPrice(Float.parseFloat(values[6]));
+					temp.setDate(values[7]);
 					
-					addFlight(dst, src, departTime, duration, price, totalSeats);		
+					fromFile.add(temp);
+						
 										
 					current = read.readLine();
 					
-				}				
+				}
+				
+				serializeFlights(fromFile);
+				
+				
 				read.close();
 				
 			}

@@ -3,6 +3,7 @@ package BackEnd;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.LinkedList;
@@ -26,7 +27,10 @@ public class Task extends Thread {
 	private static final String SPLITCHAR = "\\t";
 	private static final String SEARCH = "SEARCH";
 	private static final String BOOK = "BOOK";
-	private static final String DELETE = "DELETE";
+	private static final String DELETE = "REMOVE";
+	private static final String ADD = "ADD";
+	private static final String TICKETS = "TICKETS";
+	private static final String FILE = "FILE";
 	
 	/**
 	 * The reference to the server
@@ -48,6 +52,8 @@ public class Task extends Thread {
 	 */
 	private ObjectOutputStream out;
 	
+	private ObjectInputStream fileDownload;
+	
 	/**
 	 * Constructs a task that is linked to the server and a given socket
 	 * @param theServer is the reference to the server
@@ -58,6 +64,7 @@ public class Task extends Thread {
 		this.theSocket = theSocket;
 		
 		try{
+			fileDownload = new ObjectInputStream( theSocket.getInputStream());
 			out = new ObjectOutputStream( theSocket.getOutputStream());
 			in = new BufferedReader( new InputStreamReader(theSocket.getInputStream()));
 		}
@@ -83,10 +90,10 @@ public class Task extends Thread {
 					
 					String [] opps = newLine.split(SPLITCHAR);
 					
-					System.out.println("First keyWord & size: " + opps[0] + " " + opps[0].length());
+/*					System.out.println("First keyWord & size: " + opps[0] + " " + opps[0].length());
 					System.out.println("Second keyWord & size: " + opps[1] + " " + opps[1].length());
 					System.out.println("Third keyWord & size: " + opps[2] + " " + opps[2].length());
-					System.out.println("Fourth keyWord & size: " + opps[3] + " " + opps[3].length());
+					System.out.println("Fourth keyWord & size: " + opps[3] + " " + opps[3].length());*/
 
 
 					
@@ -104,15 +111,32 @@ public class Task extends Thread {
 					else if(opps[0].contentEquals(BOOK)){
 						System.out.println("PERFROM BOOK");
 						
-						//Ticket temp = theServer.bookTicket(1, "Tevin", "Schmidt", "02/19/1997");
-						
-						
 						Ticket rv = theServer.bookTicket(Integer.parseInt(opps[1]), opps[2], opps[3], opps[4]);
 						serializeTicket(rv);
 					}
 					else if(opps[0].contentEquals(DELETE)){
 						System.out.println("PERFORM DELETE");
 						
+						theServer.deleteTicket(Integer.parseInt(opps[1]), Integer.parseInt(opps[2]));
+						
+						
+					}
+					else if(opps[0].contentEquals(ADD)){
+						System.out.println("PERFORM ADD");
+						
+						theServer.insertFlight(opps);
+						
+					}
+					else if(opps[0].contentEquals(TICKETS)){
+						System.out.println("RETRIEVE BOOKED TICKETS");
+						
+						LinkedList<Ticket> rv = theServer.allBookedTickets();
+						serializeTickets(rv);
+					}
+					else if(opps[0].contentEquals(FILE)){
+						System.out.println("RETRIEVE FILE OF FLIGHTS");
+						
+						deserializeFlightList();
 						
 					}
 					
@@ -142,11 +166,48 @@ public class Task extends Thread {
 		
 	}
 	
+	@SuppressWarnings("unchecked")
+	public void deserializeFlightList() {
+		try{
+			System.out.print("TEST");
+			Object flightIn = fileDownload.readObject();
+			LinkedList<Flight> flights = new LinkedList<Flight>( (LinkedList<Flight>) flightIn );
+			flights.get(0).seeFlight();
+			theServer.insertFlightsFF(flights);
+			
+		}
+		catch(IOException e){
+			System.err.println("Error geting input.");
+			System.err.println(e.getMessage());
+			System.err.println(e.getStackTrace());
+			System.err.println("Program terminating...");
+			System.exit(1);
+		}
+		catch(ClassNotFoundException e){
+			System.err.println("Error reconizing class for deserialization.");
+			System.err.println(e.getMessage());
+			System.err.println("Program terminating...");
+			System.exit(1);
+		}
+	}
+	
 	/**
 	 * Serialize the flight list to send to the client
 	 * @param toSend is the LnikeList of flights to send to client
 	 */
 	public void serializeFlights(LinkedList<Flight> toSend){
+		try{
+			out.writeObject(toSend);
+		}
+		catch(IOException e){
+			System.err.println("Error writing to file.");
+			System.err.println(e.getMessage());
+			System.err.println("Program terminating...");
+			System.exit(1);
+		}
+	}
+	
+	public void serializeTickets(LinkedList<Ticket> toSend){
 		try{
 			out.writeObject(toSend);
 		}

@@ -20,7 +20,7 @@ public class Flight implements Serializable{
 	private static final long serialVersionUID = 4748L;
 	
 	/**
-	 * This is the linked list containing al tickets for the flight
+	 * This is the linked list containing all tickets for the flight
 	 */
 	private LinkedList<Ticket> tickets;
 	
@@ -262,7 +262,7 @@ public class Flight implements Serializable{
 	 * This creates all tickets for the Flight
 	 * @param numberOfSeats is the desired number of tickets to create
 	 */
-	private void createTickets(int numberOfSeats){
+	public void createTickets(int numberOfSeats){
 		tickets = new LinkedList<Ticket>();
 		for(int i = 1; i <= numberOfSeats; i++){
 			tickets.add(new Ticket(i, this));
