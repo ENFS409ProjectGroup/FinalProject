@@ -217,15 +217,9 @@ public class Admin extends Client implements ListSelectionListener {
 		JButton btnBrowseBookedTickets = new JButton("Browse Booked Tickets");
 		btnBrowseBookedTickets.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(tickets.size() == 0){
-					listModel.addElement("Sorry, there are no tickets to display");
-					return;
-				}
-				for(int i = 0; i < tickets.size(); i++){
-					listModel.addElement(tickets);
-				}
 				
-			}
+				getTickets();
+			}	
 		});
 		btnBrowseBookedTickets.setFont(new Font("Tahoma", Font.BOLD, 11));
 		btnBrowseBookedTickets.setBounds(339, 70, 177, 23);
@@ -282,8 +276,6 @@ public class Admin extends Client implements ListSelectionListener {
 
 						UIManager.put("OptionPane.okButtonText", "OK");
 						JOptionPane.showMessageDialog(null, "Your flight has been booked! Your flight ticket is being printed...");
-						
-						printTicket(theTicket);
 						
 					}
 				}
@@ -359,7 +351,6 @@ public class Admin extends Client implements ListSelectionListener {
 					totalSeats = total.getText();
 					date = theDate.getText();
 					
-					//TODO change to make compatible
 					addFlight(dst, src, departTime, duration, price, totalSeats, date); //Add ticket to database
 					
 				}
@@ -387,16 +378,16 @@ public class Admin extends Client implements ListSelectionListener {
 		btnCancelTicket.setEnabled(false);
 		btnCancelTicket.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int index = list.getSelectedIndex();
+				int index = list_2.getSelectedIndex();
 				Ticket tmp = tickets.get(index);
 				
 				//Remove ticket from database
-				//flightNumber = tmp.getFlightNumber();		
+				flightNumber = tmp.getFlightNumber();		
 				seatNumber = tmp.getSeatNumber();
 				removeTicket(flightNumber, seatNumber);
 				
 				tickets.remove(index);
-				listModel.removeElementAt(index);
+				listModel_2.removeElementAt(index);
 				
 				
 			}
@@ -409,7 +400,7 @@ public class Admin extends Client implements ListSelectionListener {
 		btnViewTicket.setEnabled(false);
 		btnViewTicket.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int index = list.getSelectedIndex();
+				int index = list_2.getSelectedIndex();
 				
 				Ticket tick = tickets.get(index);
 				String temp = "Passenger Name: " + tick.getFirstName() + " " + tick.getLastName() + "   Date of Birth: " + tick.getDateOfBirth() + "   Destination: " + tick.getDestination() +
@@ -437,7 +428,9 @@ public class Admin extends Client implements ListSelectionListener {
 				textField_2.setText("");
 				
 				list.setSelectedIndex(-1);
+				list_2.setSelectedIndex(-1);
 				listModel.clear();
+				listModel_2.clear();
 			}
 		});
 		btnClear.setFont(new Font("Tahoma", Font.BOLD, 11));
@@ -456,6 +449,14 @@ public class Admin extends Client implements ListSelectionListener {
 			}else{
 				btnNewButton.setEnabled(true);
 			}
+			
+			if(list_2.getSelectedIndex() == -1) {
+				btnViewTicket.setEnabled(false);
+				btnCancelTicket.setEnabled(false);
+			}else{
+				btnViewTicket.setEnabled(true);
+				btnCancelTicket.setEnabled(true);
+			}
 		}
 		
 	}
@@ -469,6 +470,15 @@ public class Admin extends Client implements ListSelectionListener {
 			}
 			for(int i = 0; i < flights.size(); i++){
 				listModel.addElement(flights.get(i).getDepartureTime() + "    " + flights.get(i).getSource() + "    " + flights.get(i).getDestination());
+			}
+		}
+		
+		public void updateTickets(){
+			if(tickets.size() == 0){
+				listModel_2.addElement("No tickets have been booked.");
+			}
+			for(int i = 0; i < tickets.size(); i++){
+				listModel_2.addElement(tickets.get(i).getFirstName());
 			}
 		}
 		/**
@@ -492,6 +502,8 @@ public class Admin extends Client implements ListSelectionListener {
 						socketOut.println(output + "\t" +  flightNumber + "\t" + firstName + "\t" + lastName + "\t" + dob );
 						output = "";
 						deserializeTicket();
+						
+						printTicket(theTicket);
 					}
 					else if(output.contentEquals("REMOVE")){
 						System.out.println("Send remove ticket query.");
@@ -505,6 +517,14 @@ public class Admin extends Client implements ListSelectionListener {
 						output = "";
 						
 						//more
+					}
+					else if(output.contentEquals("TICKETS")){
+						System.out.println("Grabbing tickets from database");
+						socketOut.println(output);
+						output = "";
+						deserializeTicketList();
+						
+						updateTickets();
 					}
 					else if(output.contentEquals("FILE")){
 						System.out.println("Send File of flights.");
@@ -585,9 +605,15 @@ public class Admin extends Client implements ListSelectionListener {
 		  */
 		public static void printTicket(Ticket ticket){
 			
+			String name = "Passenger: " + ticket.getLastName() + ",  " + ticket.getFirstName();
+			String DOB = "Date of Birth: " + ticket.getDateOfBirth();
+			String depart = "Departure Time: " + ticket.getDepartureTime() + "  From: " + ticket.getSource() + "  To: " + ticket.getDestination();
+			String duration = "Flight Duration: " + ticket.getDuration();
+			String seatnum = "Seat Number: " + ticket.getSeatNumber();
+			
 			try{
 				
-				File fout = new File("AirlineTicket"); //Check if file exists
+				File fout = new File("Airline Ticket.txt"); //Check if file exists
 				if(!fout.exists()){
 					fout.createNewFile();
 				}
@@ -604,18 +630,18 @@ public class Admin extends Client implements ListSelectionListener {
 				bw.write("Flight Itinerary:");
 				bw.newLine();
 				bw.newLine();
-				bw.write("Passenger: " + ticket.getLastName() + ",  " + ticket.getFirstName());
+				bw.write(name);
 				bw.newLine();
-				bw.write("Date of Birth: " + ticket.getDateOfBirth());
+				bw.write(DOB);
 				bw.newLine();
 				bw.write("Flight Deatils:");
 				bw.newLine();
 				bw.newLine();
-				bw.write("Departure Time: " + ticket.getDepartureTime() + "  From: " + ticket.getSource() + "  To: " + ticket.getDestination());
+				bw.write(depart);
 				bw.newLine();
-				bw.write("Flight Duration: " + ticket.getDuration());
+				bw.write(duration);
 				bw.newLine();
-				bw.write("Seat Number: " + ticket.getSeatNumber());
+				bw.write(seatnum);
 				bw.newLine();
 				bw.newLine();
 				bw.write("Enjoy your flight!!");

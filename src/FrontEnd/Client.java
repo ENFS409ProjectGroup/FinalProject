@@ -14,7 +14,7 @@ import BackEnd.Ticket;
 
 public class Client extends Thread {
 	
-	private static final int PORTNUM = 7766;
+	private static final int PORTNUM = 3306;
 	
 	/**
 	 * Strings needed for search method
@@ -92,7 +92,28 @@ public class Client extends Thread {
 		}
 	}
 	
-	
+	@SuppressWarnings("unchecked")
+	public void deserializeTicketList() {
+		try{
+			Object ticketIn = socketIn.readObject();
+			tickets = new LinkedList<Ticket>( (LinkedList<Ticket>) ticketIn );
+			
+			
+		}
+		catch(IOException e){
+			System.err.println("Error geting input.");
+			System.err.println(e.getMessage());
+			System.err.println(e.getStackTrace());
+			System.err.println("Program terminating...");
+			System.exit(1);
+		}
+		catch(ClassNotFoundException e){
+			System.err.println("Error reconizing class for deserialization.");
+			System.err.println(e.getMessage());
+			System.err.println("Program terminating...");
+			System.exit(1);
+		}
+	}
 
 	public void deserializeTicket(){
 		try{
@@ -121,6 +142,9 @@ public class Client extends Thread {
 		
 	} 
 	
+	public static void getTickets(){
+		output = "TICKETS";
+	}
 	public static void book (String fn, String ln, String db, int fnum){
 		firstName = fn;
 		lastName = ln;

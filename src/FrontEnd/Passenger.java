@@ -227,7 +227,7 @@ public class Passenger extends Client implements ListSelectionListener{
 
 						UIManager.put("OptionPane.okButtonText", "OK");
 						JOptionPane.showMessageDialog(null, "Your flight has been booked! Your flight ticket is being printed...");
-						printTicket(theTicket);
+						
 					}
 				}
 			}
@@ -295,6 +295,8 @@ public class Passenger extends Client implements ListSelectionListener{
 					socketOut.println(output + "\t" + firstName + "\t" + lastName + "\t" + dob + "\t" + flightNumber);
 					output = "";
 					deserializeTicket();
+					
+					printTicket(theTicket);
 				}
 				else if(output.contentEquals("REMOVE")){
 					System.out.println("Send remove ticket query.");
@@ -333,9 +335,15 @@ public class Passenger extends Client implements ListSelectionListener{
 	  */
 	public static void printTicket(Ticket ticket){
 		
+		String name = "Passenger: " + ticket.getLastName() + ",  " + ticket.getFirstName();
+		String DOB = "Date of Birth: " + ticket.getDateOfBirth();
+		String depart = "Departure Time: " + ticket.getDepartureTime() + "  From: " + ticket.getSource() + "  To: " + ticket.getDestination();
+		String duration = "Flight Duration: " + ticket.getDuration();
+		String seatnum = "Seat Number: " + ticket.getSeatNumber();
+		
 		try{
 			
-			File fout = new File("AirlineTicket"); //Check if file exists
+			File fout = new File("Airline Ticket.txt"); //Check if file exists
 			if(!fout.exists()){
 				fout.createNewFile();
 			}
@@ -352,18 +360,18 @@ public class Passenger extends Client implements ListSelectionListener{
 			bw.write("Flight Itinerary:");
 			bw.newLine();
 			bw.newLine();
-			bw.write("Passenger: " + ticket.getLastName() + ",  " + ticket.getFirstName());
+			bw.write(name);
 			bw.newLine();
-			bw.write("Date of Birth: " + ticket.getDateOfBirth());
+			bw.write(DOB);
 			bw.newLine();
 			bw.write("Flight Deatils:");
 			bw.newLine();
 			bw.newLine();
-			bw.write("Departure Time: " + ticket.getDepartureTime() + "  From: " + ticket.getSource() + "  To: " + ticket.getDestination());
+			bw.write(depart);
 			bw.newLine();
-			bw.write("Flight Duration: " + ticket.getDuration());
+			bw.write(duration);
 			bw.newLine();
-			bw.write("Seat Number: " + ticket.getSeatNumber());
+			bw.write(seatnum);
 			bw.newLine();
 			bw.newLine();
 			bw.write("Enjoy your flight!!");

@@ -24,6 +24,7 @@ public class Ticket implements Serializable {
 		private String departureTime;
 		private String duration;
 		private int seatNumber;
+		private int flightNumber;
 		private String date;
 		private boolean available;
 		
@@ -48,6 +49,7 @@ public class Ticket implements Serializable {
 			this.seatNumber = seatNumber;
 			this.date = theFlight.getDate();
 			this.available = true;
+			this.flightNumber = theFlight.getFlightNumber();
 		}
 		
 		public void setLastName(String lastName){
@@ -97,6 +99,9 @@ public class Ticket implements Serializable {
 			this.seatNumber = seatNumber;
 		}
 		
+		public void setFlightNumber(int flightNumber){
+			this.flightNumber = flightNumber;
+		}
 		public void setDate(String date){
 			this.date = date;
 		}
@@ -137,6 +142,9 @@ public class Ticket implements Serializable {
 			return this.seatNumber;
 		}
 		
+		public int getFlightNumber() {
+			return this.flightNumber;
+		}
 		public String getDate(){
 			return this.date;
 		}
