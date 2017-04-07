@@ -608,7 +608,7 @@ public class Admin extends Client implements ListSelectionListener {
 		
 		/**
 		 * Serializes flight list from input and sends to server for input into database
-		 * @param inputName
+		 * @param inputName: Name of text file to be input
 		 */
 		public void addFlightList(String inputName){
 			
@@ -658,7 +658,7 @@ public class Admin extends Client implements ListSelectionListener {
 		}
 		 /**
 		  * After a ticket is booked, ticket is printed to file
-		  * @param ticket
+		  * @param ticket: Ticket object to be printed
 		  */
 		public static void printTicket(Ticket ticket){
 			

@@ -59,8 +59,8 @@ public class Client extends Thread {
 	
 	/**
 	 * Client constructor 
-	 * @param serverName
-	 * @param portNumber
+	 * @param serverName: Server name
+	 * @param portNumber: Port number
 	 */
 	public Client() {
 		try{
@@ -144,9 +144,9 @@ public class Client extends Thread {
 	
 	/**
 	 * Prompts server to search database for flight based on passenger and admin GUI search query
-	 * @param src
-	 * @param dst
-	 * @param dt
+	 * @param src: Source query
+	 * @param dst: Destination query
+	 * @param dt: Date query
 	 */
 	public static void search (String src, String dst, String dt){
 		source = src;
@@ -166,8 +166,8 @@ public class Client extends Thread {
 	 * Prompts server to book a specified flight from passenger or admin GUI
 	 * @param fn: First name of passenger
 	 * @param ln: Last name of passenger
-	 * @param db
-	 * @param fnum
+	 * @param db: Passenger date of birth
+	 * @param fnum: Flight number
 	 */
 	public static void book (String fn, String ln, String db, int fnum){
 		firstName = fn;
@@ -180,8 +180,8 @@ public class Client extends Thread {
 	
 	/**
 	 * Prompts server to remove a specific ticket from database
-	 * @param fn
-	 * @param sn
+	 * @param fn: Flightnumber of ticket to be removed
+	 * @param sn: Seat number of ticket to be removed 
 	 */
 	public static void removeTicket(int fn, int sn){
 		flightNumber = fn;
@@ -192,13 +192,13 @@ public class Client extends Thread {
 	
 	/**
 	 * Creates string of flight info to send to server upon adding a new flight through Admin GUI
-	 * @param dst
-	 * @param src
-	 * @param dprt
-	 * @param dur
-	 * @param prc
-	 * @param theDate
-	 * @param ts
+	 * @param dst: Destination of added flight
+	 * @param src: Source of added flight
+	 * @param dprt: Depart time of added flight
+	 * @param dur: Duration of added flight
+	 * @param prc: Price of added flight
+	 * @param theDate: date of added flight
+	 * @param ts: Total seats of added flight
 	 */
 	public static void addFlight(String dst, String src, String dprt, String dur, String prc, String theDate, String ts){
 		destination = dst;
@@ -214,7 +214,7 @@ public class Client extends Thread {
 	
 	/**
 	 * Returns current date
-	 * @return
+	 * @return: current date
 	 */
 	public static String getCurrentDate(){
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");

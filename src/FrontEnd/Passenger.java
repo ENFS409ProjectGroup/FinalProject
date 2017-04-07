@@ -366,7 +366,7 @@ public class Passenger extends Client implements ListSelectionListener{
 	
 	 /**
 	  * After a ticket is booked, ticket is printed to file
-	  * @param ticket
+	  * @param ticket: Ticket object to be printed.
 	  */
 	public static void printTicket(Ticket ticket){
 		
