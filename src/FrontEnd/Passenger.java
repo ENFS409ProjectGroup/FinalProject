@@ -33,31 +33,47 @@ import java.util.LinkedList;
 import java.awt.event.ActionEvent;
 
 public class Passenger extends Client implements ListSelectionListener{
-
-	private String test = "Calgary Halifax 01/17/18";
-	
+	/**
+	 * Declares parent class
+	 */
 	private Client theClient;
 	
-	//Input from search query
+	/**
+	 * Input from search query
+	 */
 	private String src;
 	private String dst;
 	private String date;
 	
-	//Input from booking ticket query
+	/**
+	 * Input from booking ticket query
+	 */
 	private String firstName;
 	private String lastName;
 	private String DOB;
 	private int flightnumber;
-
+	
+	/**
+	 * Linked list of flights returned from search query
+	 */
 	private LinkedList<Flight> flight;
-		
+	
+	/**
+	 * Text fields	
+	 */
 	private JFrame frame;
 	private JTextField textField;
 	private JTextField textField_1;
 	private JTextField textField_2;
 	
+	/**
+	 * View Flight Details button
+	 */
 	private JButton btnSelect;
 	
+	/**
+	 * Display screen
+	 */
 	private JList list;
 	private DefaultListModel listModel;
 
@@ -68,8 +84,6 @@ public class Passenger extends Client implements ListSelectionListener{
 		Passenger window = new Passenger();					
 		window.frame.setVisible(true);
 		window.run();
-
-
 	}
 
 	/**
@@ -201,12 +215,20 @@ public class Passenger extends Client implements ListSelectionListener{
 			public void actionPerformed(ActionEvent arg0) {
 				int index = list.getSelectedIndex();
 				Flight value = flights.get(index);
+				
+				//Error check if there is available seats on flight
+				if(value.getSeatsAvailable() == 0){
+					JOptionPane.showMessageDialog(null, "Sorry there are no seats available for the selected flight");
+					return;
+				}
 				String temp = "Flight Number: " + value.getFlightNumber() + "  Date: " + value.getDate() + "  Time: " + value.getDepartureTime() + "  From: " + value.getSource() + "  To: " + value.getDestination() + "   Flight Length: " + value.getDuration()
 										+ "  Seats Left: " + value.getSeatsAvailable() + "  Price: " + value.getPrice();
 				UIManager.put("OptionPane.okButtonText", "Book Flight");
 				
 				//Display additional information from flight 				
 				int val = JOptionPane.showOptionDialog(null, temp, "Flight Booking", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
+				
+				//If user books flight, prompt for user information
 				if(val == JOptionPane.OK_OPTION){
 					JPanel panel = new JPanel();
 					JTextField field1 = new JTextField(10);
@@ -245,6 +267,7 @@ public class Passenger extends Client implements ListSelectionListener{
 		btnSelect.setBounds(45, 343, 171, 23);
 		frame.getContentPane().add(btnSelect);
 		
+		//Clears text fields and display screen
 		JButton clear = new JButton("Clear");
 		clear.addActionListener(new ActionListener() {
 			public void actionPerformed (ActionEvent arg0){
@@ -275,23 +298,26 @@ public class Passenger extends Client implements ListSelectionListener{
 	 * Displays search results in scroll pane
 	 */
 	public void updateFlights() {
+		
+		//Error check if searched flight exists
 		if(flights.size() == 0){
 			listModel.addElement("Sorry, we do not offer a flight with your specific search results.");
 			return;
 		}
+		//Display all flights that match search query
 		for(int i = 0; i < flights.size(); i++){
 			listModel.addElement(flights.get(i).getDepartureTime() + "    " + flights.get(i).getSource() + "    " + flights.get(i).getDestination());
 		}
 	}
 	/**
-	 * Run method
+	 * Run method. Sends keywords and string of info to server for database
 	 */
 	public void run() {
 		output = "";
 		System.out.println("Entered Run state.");
 		while(true) {
 			try{
-				if(output.contentEquals("SEARCH")){
+				if(output.contentEquals("SEARCH")){ //Search flights
 					System.out.println("Send search query.");
 					socketOut.println(output + "\t" + source + "\t" + destination + "\t" + date);
 					output = "";
@@ -299,7 +325,7 @@ public class Passenger extends Client implements ListSelectionListener{
 					
 					updateFlights();
 				}
-				else if(output.contentEquals("BOOK")){
+				else if(output.contentEquals("BOOK")){ //Book flight
 					System.out.println("Send book query.");
 					socketOut.println(output + "\t" + flightNumber + "\t" + firstName + "\t" + lastName + "\t" + dob );
 					output = "";
@@ -307,15 +333,15 @@ public class Passenger extends Client implements ListSelectionListener{
 					System.out.println(theTicket.getDepartureTime());
 					printTicket(theTicket);
 				}
-				else if(output.contentEquals("REMOVE")){
+				else if(output.contentEquals("REMOVE")){ //Remove ticket from database
 					System.out.println("Send remove ticket query.");
 					socketOut.println(output);
-					//more
+					
 				}
-				else if(output.contentEquals("ADD")){
+				else if(output.contentEquals("ADD")){	//Add flight to database
 					System.out.println("Send Add Flight query.");
 					socketOut.println(output);
-					//more
+					
 				}
 				else{
 					System.out.println("Waiting...");

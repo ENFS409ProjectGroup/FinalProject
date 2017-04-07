@@ -248,6 +248,10 @@ public class Admin extends Client implements ListSelectionListener {
 				
 				int index = list.getSelectedIndex();
 				Flight value = flights.get(index);
+				if(value.getSeatsAvailable() == 0){
+					JOptionPane.showMessageDialog(null, "Sorry there are no seats available for the selected flight");
+					return;
+				}
 				String temp = "Flight Number: " + value.getFlightNumber() + "  Date: " + value.getDate() + "  Time: " + value.getDepartureTime() + "  From: " + value.getSource() + "  To: " + value.getDestination() + "   Flight Length: " + value.getDuration()
 										+ "  Seats Left: " + value.getSeatsAvailable() + "  Price: " + value.getPrice();
 				
@@ -303,7 +307,8 @@ public class Admin extends Client implements ListSelectionListener {
 				String file;
 				file = JOptionPane.showInputDialog("Enter the file name:");
 				
-				addFlightList(file);
+				if(file != null)
+					addFlightList(file);
 				
 			}
 		});
@@ -349,7 +354,7 @@ public class Admin extends Client implements ListSelectionListener {
 				controls.add(prce);
 				labels.add(new JLabel("Total Seats: "));
 				controls.add(total);
-				labels.add(new JLabel("Date: "));
+				labels.add(new JLabel("Date (dd/mm/yyyy): "));
 				controls.add(theDate);
 				
 				int value = JOptionPane.showConfirmDialog(frame, panel, "Add Flight", JOptionPane.OK_CANCEL_OPTION);
@@ -363,7 +368,33 @@ public class Admin extends Client implements ListSelectionListener {
 					totalSeats = total.getText();
 					date = theDate.getText();
 					
-					addFlight(dst, src, departTime, duration, price, totalSeats, date); //Add ticket to database
+					//Error check if all boxes are filled out
+					if(destination.getText().equals("") || source.getText().equals("") || length.getText().equals("") || dprt.getText().equals("") || prce.getText().equals("") || total.getText().equals("") || theDate.getText().equals("")){
+						JOptionPane.showMessageDialog(null, "Please make sure all fields are valid before submitting flight");
+						return;
+					}
+					String todaysDate = getCurrentDate();
+					
+					String[] one = todaysDate.split("/");
+					String[] two = date.split("/");
+					
+					boolean execute = true;
+					
+					//Error check if date is valid
+					if(Integer.parseInt(one[2]) > Integer.parseInt(two[2])){
+						execute = false;
+					}
+					else if(Integer.parseInt(one[0]) >= Integer.parseInt(two[0]) && Integer.parseInt(one[1]) < Integer.parseInt(two[1])){
+						execute = false;
+					}else if(Integer.parseInt(one[0]) <= Integer.parseInt(two[0]) && Integer.parseInt(one[1]) > Integer.parseInt(two[1])){
+						execute = false;
+					}
+					
+					if(execute == true){
+						addFlight(dst, src, departTime, duration, price, totalSeats, date); //Add ticket to database
+					}else if(execute == false){
+						JOptionPane.showMessageDialog(null, "Please enter a valid date.");
+					}
 					
 				}
 				
@@ -373,6 +404,7 @@ public class Admin extends Client implements ListSelectionListener {
 		btnNewButton_2.setBounds(339, 129, 177, 23);
 		frame.getContentPane().add(btnNewButton_2);
 		
+		//Display screen
 		listModel_2 = new DefaultListModel<String>();
 		list_2 = new JList<String>(listModel_2);
 		list_2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -403,6 +435,7 @@ public class Admin extends Client implements ListSelectionListener {
 				seatNumber = tmp.getSeatNumber();
 				removeTicket(flightNumber, seatNumber);
 				
+				//Remove ticket from display
 				tickets.remove(index);
 				listModel_2.removeElementAt(index);
 				
@@ -413,6 +446,7 @@ public class Admin extends Client implements ListSelectionListener {
 		btnCancelTicket.setBounds(462, 353, 107, 23);
 		frame.getContentPane().add(btnCancelTicket);
 		
+		//View ticket button
 		btnViewTicket = new JButton("View Ticket");
 		btnViewTicket.setEnabled(false);
 		btnViewTicket.addActionListener(new ActionListener() {
@@ -492,12 +526,13 @@ public class Admin extends Client implements ListSelectionListener {
 		}
 		
 		public void updateTickets(){
-			if(tickets.size() == 0){
+			if(tickets.isEmpty() == true){
 				listModel_2.addElement("No tickets have been booked.");
-			}
+			}else{
 			listModel_2.clear();
-			for(int i = 0; i < tickets.size(); i++){
-				listModel_2.addElement(tickets.get(i).getFirstName());
+				for(int i = 0; i < tickets.size(); i++){
+					listModel_2.addElement(tickets.get(i).getFirstName() + ", " + tickets.get(i).getLastName() + "  To: " + tickets.get(i).getSource() + "   From: " + tickets.get(i).getDestination() + "   Seat Number: " + tickets.get(i).getSeatNumber());
+				}
 			}
 		}
 		/**
@@ -571,7 +606,10 @@ public class Admin extends Client implements ListSelectionListener {
 			}
 		}
 		
-		
+		/**
+		 * Serializes flight list from input and sends to server for input into database
+		 * @param inputName
+		 */
 		public void addFlightList(String inputName){
 			
 			try{

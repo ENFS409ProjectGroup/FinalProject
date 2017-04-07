@@ -22,7 +22,7 @@ public class Server{
 	/**
 	 * The port number for the sockets
 	 */
-	static final int PORTNUM = 7766;
+	static final int PORTNUM = 3306;
 	
 	/**
 	 * The driver to connect to the database with

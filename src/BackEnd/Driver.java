@@ -39,10 +39,10 @@ public class Driver {
 	 * The following are static string used in initial setup of the database connection
 	 */
 	private static String jdbcDriver =  "com.mysql.jdbc.Driver";
-	private static String dbAddress = "jdbc:mysql://localhost:3306/";
+	private static String dbAddress = "jdbc:mysql://localhost:7766/";
 	private static String theDB = "AirLineCatalogue";
-	private static String userName = "Client";
-	private static String password = "Client";
+	private static String userName = "root";
+	private static String password = "1993MF1967";
 	
 	
 	/**

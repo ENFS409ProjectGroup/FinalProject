@@ -7,6 +7,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 
 import BackEnd.Flight;
@@ -14,7 +16,7 @@ import BackEnd.Ticket;
 
 public class Client extends Thread {
 	
-	private static final int PORTNUM = 7766;
+	private static final int PORTNUM = 3306;
 	
 	/**
 	 * Strings needed for search method
@@ -50,7 +52,10 @@ public class Client extends Thread {
 	protected static LinkedList<Flight> flights;
 	protected static LinkedList<Ticket> tickets;
 	protected Ticket theTicket;
-	
+	/**
+	 * Current Date
+	 */
+	protected static String currentDate;
 	
 	/**
 	 * Client constructor 
@@ -68,7 +73,9 @@ public class Client extends Thread {
 			System.err.println(e.getStackTrace());
 		}
 	}
-	
+	/**
+	 * Deserialize incoming flight list from server
+	 */
 	@SuppressWarnings("unchecked")
 	public void deserializeFlightList() {
 		try{
@@ -91,7 +98,9 @@ public class Client extends Thread {
 			System.exit(1);
 		}
 	}
-	
+	/**
+	 * Deserialize incoming ticket list from server
+	 */
 	@SuppressWarnings("unchecked")
 	public void deserializeTicketList() {
 		try{
@@ -133,6 +142,12 @@ public class Client extends Thread {
 		}
 	}
 	
+	/**
+	 * Prompts server to search database for flight based on passenger and admin GUI search query
+	 * @param src
+	 * @param dst
+	 * @param dt
+	 */
 	public static void search (String src, String dst, String dt){
 		source = src;
 		destination = dst;
@@ -141,10 +156,19 @@ public class Client extends Thread {
 		output = "SEARCH";	
 		
 	} 
-	
+	/**
+	 * Prompts sever to return a linked list of flights
+	 */
 	public static void getTickets(){
 		output = "TICKETS";
 	}
+	/**
+	 * Prompts server to book a specified flight from passenger or admin GUI
+	 * @param fn: First name of passenger
+	 * @param ln: Last name of passenger
+	 * @param db
+	 * @param fnum
+	 */
 	public static void book (String fn, String ln, String db, int fnum){
 		firstName = fn;
 		lastName = ln;
@@ -154,6 +178,11 @@ public class Client extends Thread {
 		output = "BOOK";
 	}
 	
+	/**
+	 * Prompts server to remove a specific ticket from database
+	 * @param fn
+	 * @param sn
+	 */
 	public static void removeTicket(int fn, int sn){
 		flightNumber = fn;
 		seatNumber = sn;	
@@ -161,8 +190,16 @@ public class Client extends Thread {
 		output = "REMOVE";
 	}
 	
-	//Had to add date
-	//TODO have to change the admin class to give a date also
+	/**
+	 * Creates string of flight info to send to server upon adding a new flight through Admin GUI
+	 * @param dst
+	 * @param src
+	 * @param dprt
+	 * @param dur
+	 * @param prc
+	 * @param theDate
+	 * @param ts
+	 */
 	public static void addFlight(String dst, String src, String dprt, String dur, String prc, String theDate, String ts){
 		destination = dst;
 		source = src;
@@ -175,6 +212,21 @@ public class Client extends Thread {
 		output = "ADD";
 	}
 	
+	/**
+	 * Returns current date
+	 * @return
+	 */
+	public static String getCurrentDate(){
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		LocalDate localDate = LocalDate.now();
+		String date = (dtf.format(localDate));
+		
+		return date;
+	} 
+	
+	/**
+	 * Informs server to disconnect client upon exiting GUI
+	 */
 	public void disconnect(){
 		socketOut.println("END");
 	}
