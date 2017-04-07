@@ -4,6 +4,7 @@ import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.LinkedList;
@@ -12,6 +13,9 @@ import BackEnd.Flight;
 import BackEnd.Ticket;
 
 public class Client extends Thread {
+	
+	private static final int PORTNUM = 7766;
+	
 	/**
 	 * Strings needed for search method
 	 */
@@ -37,7 +41,9 @@ public class Client extends Thread {
 	protected PrintWriter socketOut;
 	protected Socket theSocket;
 	protected ObjectInputStream socketIn;
+	protected ObjectOutputStream sendFile;
 	protected static  String output;
+	protected static LinkedList<Flight> fromFile;
 	/**
 	 * Returned flights from search
 	 */
@@ -53,7 +59,8 @@ public class Client extends Thread {
 	 */
 	public Client() {
 		try{
-			theSocket = new Socket("localhost", 3306);
+			theSocket = new Socket("localhost", PORTNUM);
+			sendFile = new ObjectOutputStream(theSocket.getOutputStream());
 			socketIn = new ObjectInputStream(theSocket.getInputStream());
 			socketOut = new PrintWriter((theSocket.getOutputStream()), true);
 			
@@ -129,15 +136,42 @@ public class Client extends Thread {
 		
 		output = "REMOVE";
 	}
-	public static void addFlight(String dst, String src, String dprt, String dur, String prc, String ts){
+	
+	//Had to add date
+	//TODO have to change the admin class to give a date also
+	public static void addFlight(String dst, String src, String dprt, String dur, String prc, String theDate, String ts){
 		destination = dst;
 		source = src;
 		departTime = dprt;
 		duration = dur;
 		price = prc;
 		totalSeats = ts;
+		date = theDate;
 		
 		output = "ADD";
+	}
+	
+	/**
+	 * Serialize the flight list to send to the client
+	 * @param toSend is the LnikeList of flights to send to client
+	 */
+	public void serializeFlights(LinkedList<Flight> toSend){
+		try{
+			output = "FILE";
+			try {
+				sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			sendFile.writeObject(toSend);
+			
+		}
+		catch(IOException e){
+			System.err.println("Error writing to file.");
+			System.err.println(e.getMessage());
+			System.err.println("Program terminating...");
+			System.exit(1);
+		}
 	}
 
 }

@@ -102,11 +102,18 @@ public class Server{
 		return this.driver;
 	}
 	
+	public synchronized int nextFlightNum(){
+		synchronized (flights){
+			updateFlightList();
+			return (flights.size() + 1);
+		}
+	}
+	
 	/**
 	 * Adds all flights from the given text file
 	 * @param inputName is the name of the inputFile
 	 */
-	public void addFlightList(String inputName){
+	public synchronized void addFlightList(String inputName){
 		
 		try{
 			FileReader reader = new FileReader(inputName + ".txt");
@@ -146,7 +153,7 @@ public class Server{
 	 * This inserts The given list of flights into the database
 	 * @param flights is the LinkedList of flights to be added
 	 */
-	public void insertFlights(LinkedList<Flight> flights){
+	public synchronized void insertFlights(LinkedList<Flight> flights){
 		for(int i = 0; i < flights.size(); i++){
 			String [] toInsert = new String[8];
 			toInsert[0] = flights.get(i).getDestination();
@@ -177,12 +184,58 @@ public class Server{
 		}
 	}
 	
+	public synchronized void insertFlightsFF(LinkedList<Flight> flightsList){
+		synchronized (flights){
+			updateFlightList();
+			int nextFN = nextFlightNum();
+			System.out.println(nextFN);
+			for(int i = 0; i < flightsList.size(); i++){
+				flightsList.get(i).setFlightNumber(nextFN);
+				flightsList.get(i).createTickets(flightsList.get(i).getTotalSeats());
+				nextFN++;
+			}
+			
+		
+		
+			for(int i = 0; i < flightsList.size(); i++){
+				String [] toInsert = new String[8];
+				toInsert[0] = flightsList.get(i).getDestination();
+				toInsert[1] = flightsList.get(i).getSource();
+				toInsert[2] = flightsList.get(i).getDepartureTime();
+				toInsert[3] = flightsList.get(i).getDuration();
+				toInsert[4] = Integer.toString(flightsList.get(i).getTotalSeats());
+				toInsert[5] = Integer.toString(flightsList.get(i).getSeatsAvailable());
+				toInsert[6] = Float.toString(flightsList.get(i).getPrice());
+				toInsert[7] = flightsList.get(i).getDate();
+			
+				String sqlOut = "insert into flights"
+						+ "(flightNumber, destination, source, departureTime, duration, totalSeats, seatsAvailable, price, date)"
+						+ "values ('" + flightsList.get(i).getFlightNumber() + "', '"
+						+ toInsert[0] + "', '" + toInsert[1] + "', '" + toInsert[2] + "', '" 
+						+ toInsert[3] + "', '" + toInsert[4] + "', '" + toInsert[5] + "', '" 
+						+ toInsert[6] + "', '" + toInsert[7] + "')";
+			
+				try{
+					driver.getState().executeUpdate(sqlOut);
+				}
+				catch(SQLException e){
+					System.err.println("There was a problem inserting to flights.");
+					System.err.println(e.getMessage());
+					System.err.println("Program terminating...");
+					System.exit(1);
+				}
+				
+				insertTickets(flightsList.get(i).getTickets(), flightsList.get(i).getFlightNumber());
+			}
+		}
+	}
+	
 	/**
 	 * Inserts the given LinkedList of tickets into the database
 	 * @param tickets is the Linked list of tickets
 	 * @param flightNumber is the flight number to be associated with them
 	 */
-	public void insertTickets(LinkedList<Ticket> tickets, int flightNumber){
+	public synchronized void insertTickets(LinkedList<Ticket> tickets, int flightNumber){
 		for(int i = 0, j = 1; i < tickets.size(); i++, j++){
 			String [] toInsert = new String[8];
 			toInsert[0] = tickets.get(i).getLastName();
@@ -216,30 +269,32 @@ public class Server{
 	 * Inserts a single flight into the database
 	 * @param toInsert is the string containing flight info to insert into the database
 	 */
-	public void insertFlight(String[] toInsert){
-		String sqlOut = "insert into flights"
-				+ " (flightNumber, destination, source, departureTime, duration, totalSeats, seatAvailable, price, date)"
-				+ "values ('" + Integer.parseInt(toInsert[0]) + "', '" + toInsert[1] + "', '" 
-				+ toInsert[2] + "', '" + toInsert[3] + "', '" + toInsert[4] + "', '"
-				+ toInsert[5] + "', '" + toInsert[6] + "', '" + toInsert[7] + "', '"
-				+ toInsert[8] + "')";
+	public synchronized void insertFlight(String[] toInsert){
+		int flightNumber = nextFlightNum();
+		Flight newFlight = new Flight();
+		newFlight.setFlightNumber(flightNumber);
+		newFlight.setDestination(toInsert[1]);
+		newFlight.setSource(toInsert[2]);
+		newFlight.setDepartureTime(toInsert[3]);
+		newFlight.setDuration(toInsert[4]);
+		newFlight.setTotalSeats(Integer.parseInt(toInsert[5]));
+		newFlight.setAvailable(Integer.parseInt(toInsert[6]));
+		newFlight.setPrice(Float.parseFloat(toInsert[7]));
+		newFlight.setDate(toInsert[8]);
 		
-		try{
-			driver.getState().executeUpdate(sqlOut);
-		}
-		catch(SQLException e){
-			System.err.println("There was a problem inserting to flights.");
-			System.err.println(e.getMessage());
-			System.err.println("Program terminating...");
-			System.exit(1);
-		}
+		newFlight.createTickets(Integer.parseInt(toInsert[5]));
+		
+		LinkedList<Flight> toAdd = new LinkedList<Flight>();
+		toAdd.add(newFlight);
+		insertFlights(toAdd);
+		insertTickets(newFlight.getTickets(), flightNumber);
 	}
 	
 	/**
 	 * Deletes a single flight from the database
 	 * @param toDelete is the flightNumber of the flight to delete
 	 */
-	public void deleteFlight(String toDelete){
+	public synchronized void deleteFlight(String toDelete){
 		String sqlOut = "delete from flights where flightNumber='" + Integer.parseInt(toDelete) + "'";
 		
 		try{
@@ -257,7 +312,7 @@ public class Server{
 	 * Deletes tickets associated with a flight 
 	 * @param toDelete is the flight number of the tickets to delete
 	 */
-	public void deleteFlightTickets(String toDelete){
+	public synchronized void deleteFlightTickets(String toDelete){
 		String sqlOut = "delete from tickets where flightNumber='" + Integer.parseInt(toDelete) + "'";
 		
 		try{
@@ -339,6 +394,24 @@ public class Server{
 		return null;
 	}
 	
+	public synchronized LinkedList<Ticket> allBookedTickets(){
+		synchronized (flights){
+			updateFlightList();
+			LinkedList<Ticket> rv = new LinkedList<Ticket>();
+			LinkedList<Ticket> localTickets = new LinkedList<Ticket>();
+			for(int i = 0; i < flights.size(); i++){
+				localTickets = flights.get(i).getTickets();
+				for(int j = 0; j < localTickets.size(); j++){
+					if(!localTickets.get(j).getAvailable()){
+						rv.add(localTickets.get(j));
+					}
+				}
+			}
+			return rv;
+		}
+	}
+	
+	
 	/**
 	 * Changes the status of the ticket to not available, and puts the passenger
 	 * information into the ticket
@@ -405,6 +478,7 @@ public class Server{
 		}
 	}
 	
+
 	/**
 	 * Searches for a particular flight in the LinkedList
 	 * @param flightNumber is the number of the flight to find
