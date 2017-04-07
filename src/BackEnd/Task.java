@@ -31,6 +31,7 @@ public class Task extends Thread {
 	private static final String ADD = "ADD";
 	private static final String TICKETS = "TICKETS";
 	private static final String FILE = "FILE";
+	private static final String TERMINATE = "END";
 	
 	/**
 	 * The reference to the server
@@ -138,6 +139,9 @@ public class Task extends Thread {
 						
 						deserializeFlightList();
 						
+					}
+					else if(opps[0].contentEquals(TERMINATE)){
+						break;
 					}
 					
 				}

@@ -22,7 +22,7 @@ public class Server{
 	/**
 	 * The port number for the sockets
 	 */
-	static final int PORTNUM = 3306;
+	static final int PORTNUM = 7766;
 	
 	/**
 	 * The driver to connect to the database with
@@ -386,6 +386,9 @@ public class Server{
 				Ticket tempTicket = tempTickets.get(i);
 				if(tempTicket.getAvailable()){
 					updateTicketInDB(j,flightNumber,firstName,lastName,dateOfBirth);
+					tempTicket.setFirstName(firstName);
+					tempTicket.setLastName(lastName);
+					tempTicket.setDateOfBirth(dateOfBirth);
 					return tempTicket;
 				}
 			}
@@ -457,6 +460,7 @@ public class Server{
 		int seatsLeft = tempFlight.getSeatsAvailable();
 		seatsLeft++;
 		
+		
 		String sqlOut1 = "UPDATE tickets SET firstName='" + null + "' WHERE (flightNumber='" + flightNumber + "' AND seatNumber='" + seatNum +"')";
 		String sqlOut2 = "UPDATE tickets SET lastName='" + null + "' WHERE (flightNumber='" + flightNumber + "' AND seatNumber='" + seatNum +"')";
 		String sqlOut3 = "UPDATE tickets SET dateOfBirth='" + null + "' WHERE (flightNumber='" + flightNumber + "' AND seatNumber='" + seatNum +"')";
@@ -485,6 +489,7 @@ public class Server{
 	 * @return is the Flight with the given number 
 	 */
 	private synchronized Flight searchFlights(int flightNumber){
+
 		synchronized (flights){
 			for(int i = 0; i < flights.size(); i++){
 				Flight tempFlight = flights.get(i);

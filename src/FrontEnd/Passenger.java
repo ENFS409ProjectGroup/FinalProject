@@ -89,6 +89,15 @@ public class Passenger extends Client implements ListSelectionListener{
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
+		//On Exit
+		frame.addWindowListener(new java.awt.event.WindowAdapter(){
+			@Override
+			public void windowClosing(java.awt.event.WindowEvent windowEvent){
+				disconnect();
+				System.exit(1);
+			}
+		});
+		
 		//Display header
 		JTextPane txtpnWelcomeToAirline = new JTextPane();
 		txtpnWelcomeToAirline.setEditable(false);
@@ -292,10 +301,10 @@ public class Passenger extends Client implements ListSelectionListener{
 				}
 				else if(output.contentEquals("BOOK")){
 					System.out.println("Send book query.");
-					socketOut.println(output + "\t" + firstName + "\t" + lastName + "\t" + dob + "\t" + flightNumber);
+					socketOut.println(output + "\t" + flightNumber + "\t" + firstName + "\t" + lastName + "\t" + dob );
 					output = "";
 					deserializeTicket();
-					
+					System.out.println(theTicket.getDepartureTime());
 					printTicket(theTicket);
 				}
 				else if(output.contentEquals("REMOVE")){
@@ -335,6 +344,7 @@ public class Passenger extends Client implements ListSelectionListener{
 	  */
 	public static void printTicket(Ticket ticket){
 		
+		
 		String name = "Passenger: " + ticket.getLastName() + ",  " + ticket.getFirstName();
 		String DOB = "Date of Birth: " + ticket.getDateOfBirth();
 		String depart = "Departure Time: " + ticket.getDepartureTime() + "  From: " + ticket.getSource() + "  To: " + ticket.getDestination();
@@ -347,7 +357,7 @@ public class Passenger extends Client implements ListSelectionListener{
 			if(!fout.exists()){
 				fout.createNewFile();
 			}
-			FileWriter fw = new FileWriter(fout, true);
+			FileWriter fw = new FileWriter(fout, false);
 			BufferedWriter bw = new BufferedWriter(fw);
 			
 			bw.write("===== Airline Ticket Confirmation =====");//Print header

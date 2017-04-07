@@ -74,10 +74,10 @@ public class Admin extends Client implements ListSelectionListener {
 	private JButton btnCancelTicket;
 	private JButton btnViewTicket;
 	
-	private JList list;
-	private JList list_2;
-	private DefaultListModel listModel;
-	private DefaultListModel listModel_2;
+	private JList<String> list;
+	private JList<String> list_2;
+	private DefaultListModel<String> listModel;
+	private DefaultListModel<String> listModel_2;
 	
 	/**
 	 * Launch the application.
@@ -104,6 +104,15 @@ public class Admin extends Client implements ListSelectionListener {
 		frame.setBounds(100, 100, 672, 425);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
+		
+		//On Exit
+		frame.addWindowListener(new java.awt.event.WindowAdapter(){
+			@Override
+			public void windowClosing(java.awt.event.WindowEvent windowEvent){
+				disconnect();
+				System.exit(1);
+			}
+		});
 		
 		//Title
 		JTextPane txtpnAirlineRegistration = new JTextPane();
@@ -185,6 +194,9 @@ public class Admin extends Client implements ListSelectionListener {
 					JOptionPane.showMessageDialog(null, "Please make sure all fields are specified.");
 					return;
 				}
+				else{
+					//TODO check to see if date is in the right format
+				}
 				
 				search(src, dst, date); //Get search results from data base			
 			}
@@ -194,8 +206,8 @@ public class Admin extends Client implements ListSelectionListener {
 		frame.getContentPane().add(btnGetFlights);
 		
 		//Pane where search results are displayed
-		listModel = new DefaultListModel();
-		list = new JList(listModel);
+		listModel = new DefaultListModel<String>();
+		list = new JList<String>(listModel);
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list.setSelectedIndex(0);
 		list.addListSelectionListener(this);
@@ -254,7 +266,7 @@ public class Admin extends Client implements ListSelectionListener {
 					panel.add(new JLabel("Enter Last Name:"));
 					panel.add(field2);
 					JTextField field3 = new JTextField(10);
-					panel.add(new JLabel("Enter Date of Birth (mm-dd-yyyy):"));
+					panel.add(new JLabel("Enter Date of Birth (mm/dd/yyyy):"));
 					panel.add(field3);
 					
 					int val_2 = JOptionPane.showConfirmDialog(frame, panel, "Flight Booking", JOptionPane.OK_CANCEL_OPTION);
@@ -361,8 +373,8 @@ public class Admin extends Client implements ListSelectionListener {
 		btnNewButton_2.setBounds(339, 129, 177, 23);
 		frame.getContentPane().add(btnNewButton_2);
 		
-		listModel_2 = new DefaultListModel();
-		list_2 = new JList(listModel_2);
+		listModel_2 = new DefaultListModel<String>();
+		list_2 = new JList<String>(listModel_2);
 		list_2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list_2.setSelectedIndex(0);
 		list_2.addListSelectionListener(this);
@@ -380,9 +392,14 @@ public class Admin extends Client implements ListSelectionListener {
 			public void actionPerformed(ActionEvent e) {
 				int index = list_2.getSelectedIndex();
 				Ticket tmp = tickets.get(index);
+				System.out.println(tmp.getFlightNumber());
+				System.out.println(tmp.getDate());
+				System.out.println(tmp.getSeatNumber());
+
 				
 				//Remove ticket from database
-				flightNumber = tmp.getFlightNumber();		
+				flightNumber = tmp.getFlightNumber();
+				System.out.println(flightNumber);
 				seatNumber = tmp.getSeatNumber();
 				removeTicket(flightNumber, seatNumber);
 				
@@ -409,7 +426,7 @@ public class Admin extends Client implements ListSelectionListener {
 				UIManager.put("OptionPane.okButtonText", "OK");
 				
 				//Display ticket info
-				int val = JOptionPane.showOptionDialog(null, temp, "Ticket Information", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
+				JOptionPane.showOptionDialog(null, temp, "Ticket Information", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
 			}
 		});
 		btnViewTicket.setFont(new Font("Tahoma", Font.BOLD, 11));
@@ -468,6 +485,7 @@ public class Admin extends Client implements ListSelectionListener {
 				listModel.addElement("Sorry, we do not offer a flight with your specific search results.");
 				return;
 			}
+			listModel.clear();
 			for(int i = 0; i < flights.size(); i++){
 				listModel.addElement(flights.get(i).getDepartureTime() + "    " + flights.get(i).getSource() + "    " + flights.get(i).getDestination());
 			}
@@ -477,6 +495,7 @@ public class Admin extends Client implements ListSelectionListener {
 			if(tickets.size() == 0){
 				listModel_2.addElement("No tickets have been booked.");
 			}
+			listModel_2.clear();
 			for(int i = 0; i < tickets.size(); i++){
 				listModel_2.addElement(tickets.get(i).getFirstName());
 			}

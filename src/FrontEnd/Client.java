@@ -14,7 +14,7 @@ import BackEnd.Ticket;
 
 public class Client extends Thread {
 	
-	private static final int PORTNUM = 3306;
+	private static final int PORTNUM = 7766;
 	
 	/**
 	 * Strings needed for search method
@@ -173,6 +173,10 @@ public class Client extends Thread {
 		date = theDate;
 		
 		output = "ADD";
+	}
+	
+	public void disconnect(){
+		socketOut.println("END");
 	}
 	
 	/**

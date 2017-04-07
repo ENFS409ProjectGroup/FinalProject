@@ -39,11 +39,10 @@ public class Driver {
 	 * The following are static string used in initial setup of the database connection
 	 */
 	private static String jdbcDriver =  "com.mysql.jdbc.Driver";
-	private static String dbAddress = "jdbc:mysql://localhost:7766/";
-	private static String SSL = "/?autoReconnect=true&useSSL=false";
+	private static String dbAddress = "jdbc:mysql://localhost:3306/";
 	private static String theDB = "AirLineCatalogue";
-	private static String userName = "root";
-	private static String password = "1993MF1967";
+	private static String userName = "Client";
+	private static String password = "Client";
 	
 	
 	/**
@@ -251,11 +250,13 @@ public class Driver {
 				if(resultSet.getInt("flightNumber") == flightNumber ){
 					Ticket tempTicket = new Ticket();
 					tempTicket.setSeatNumber(resultSet.getInt("seatNumber"));
+					tempTicket.setFlightNumber(Integer.parseInt(resultSet.getString("flightNumber")));
 					tempTicket.setLastName(resultSet.getString("lastName"));
 					tempTicket.setFirstName(resultSet.getString("firstName"));
 					tempTicket.setDateOfBirth(resultSet.getString("dateOfBirth"));
 					tempTicket.setDestination(resultSet.getString("destination"));
-					tempTicket.setSource(resultSet.getString("departureTime"));
+					tempTicket.setSource(resultSet.getString("source"));
+					tempTicket.setDepatureTime(resultSet.getString("departureTime"));
 					tempTicket.setDuration(resultSet.getString("duration"));
 					tempTicket.setDate(resultSet.getString("date"));
 					if(resultSet.getInt("available") == 1){

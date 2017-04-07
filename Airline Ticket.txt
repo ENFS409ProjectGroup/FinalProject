@@ -1,0 +1,31 @@
+===== Airline Ticket Confirmation =====
+
+
+Thank you for booking with us!!
+
+Flight Itinerary:
+
+Passenger: Schmidt,  June
+Date of Birth: 06/12/1945
+Flight Deatils:
+
+Departure Time: 16:30  From: Calgary  To: Toronto
+Flight Duration: 2.5
+Seat Number: 8
+
+Enjoy your flight!!===== Airline Ticket Confirmation =====
+
+
+Thank you for booking with us!!
+
+Flight Itinerary:
+
+Passenger: Schmidt,  Ron
+Date of Birth: 06/11/1968
+Flight Deatils:
+
+Departure Time: 16:30  From: Calgary  To: Toronto
+Flight Duration: 2.5
+Seat Number: 9
+
+Enjoy your flight!!
