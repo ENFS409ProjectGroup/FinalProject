@@ -184,6 +184,11 @@ public class Server{
 		}
 	}
 	
+	/**
+	 * Inserts all flights from a linked list of Flights that was created from an
+	 * input file.
+	 * @param flightsList is the LinkedList of flights to add to the database
+	 */
 	public synchronized void insertFlightsFF(LinkedList<Flight> flightsList){
 		synchronized (flights){
 			updateFlightList();
@@ -340,7 +345,7 @@ public class Server{
 	 * @param source is the source of the flight
 	 * @param destination is the destination of the flight
 	 * @param date is the date of the flight
-	 * @return is the LinkedList containing all relevent flights
+	 * @return is the LinkedList containing all relevant flights
 	 */
 	public synchronized LinkedList<Flight> search(String source, String destination, String date){
 		LinkedList<Flight> rv = new LinkedList<Flight>();
@@ -397,6 +402,10 @@ public class Server{
 		return null;
 	}
 	
+	/**
+	 * Returns a LinkedList of all Tickets that have been booked
+	 * @return the LinkedList containing all booked flights
+	 */
 	public synchronized LinkedList<Ticket> allBookedTickets(){
 		synchronized (flights){
 			updateFlightList();

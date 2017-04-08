@@ -31,7 +31,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.awt.event.ActionEvent;
-
+/**
+ * This class is what runs the Passenger GUI. This class contains all 
+ * of the components required for the GUI along with the listeners that
+ * perform actions based on user input.
+ * 
+ * @author Tevin Schmidt
+ * @author James Bews
+ *
+ */
 public class Passenger extends Client implements ListSelectionListener{
 	/**
 	 * Declares parent class

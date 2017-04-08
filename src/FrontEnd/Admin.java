@@ -41,6 +41,15 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.awt.event.ActionEvent;
 
+/**
+ * This class is the GUI for the Admin in the Flight Management System.
+ * I has all of the GUI components along with the methods that listen
+ * for user input and respond accordingly.
+ * 
+ * @author Tevin Schmidt
+ * @author James Bews
+ *
+ */
 public class Admin extends Client implements ListSelectionListener {
 	
 	/**
@@ -194,9 +203,7 @@ public class Admin extends Client implements ListSelectionListener {
 					JOptionPane.showMessageDialog(null, "Please make sure all fields are specified.");
 					return;
 				}
-				else{
-					//TODO check to see if date is in the right format
-				}
+
 				
 				search(src, dst, date); //Get search results from data base			
 			}

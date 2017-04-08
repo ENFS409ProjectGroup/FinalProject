@@ -13,7 +13,16 @@ import java.util.LinkedList;
 
 import BackEnd.Flight;
 import BackEnd.Ticket;
-
+/**
+ * This class acts as the parent to the two GUI interfaces. It has common
+ * methods that are required in both GUI's, these include methods that set
+ * up the data to send to the server along with common member functions
+ * that are used to perfform actions.
+ * 
+ * @author Tevin Schmidt
+ * @author James Bews
+ *
+ */
 public class Client extends Thread {
 	
 	private static final int PORTNUM = 3306;
